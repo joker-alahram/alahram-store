@@ -183,7 +183,7 @@ function showProducts(company){
   app.appendChild(back);
 
   let search = document.createElement("input");
-  search.placeholder = "🔍 ابحث (مثال: ريد 400)";
+  search.placeholder = "🔍 بحث";
   search.oninput = () => renderProducts(search.value);
   app.appendChild(search);
 
@@ -294,7 +294,7 @@ function updateTotal(){
   document.getElementById("total").innerText = total + " جنيه";
 }
 
-// مراجعة
+// مراجعة الطلب
 function goReview(){
   const app = document.getElementById("app");
   app.innerHTML = "<h3 style='text-align:center'>مراجعة الطلب</h3>";
@@ -322,16 +322,21 @@ function goReview(){
   app.innerHTML += `
     <h3 style="text-align:center">الإجمالي: ${total} جنيه</h3>
 
+    <p style="text-align:center;color:#0b3d91;font-weight:bold">
+      الأهرام للتجارة والتوزيع يسعدنا تواجدكم في كتالوج الأهرام
+    </p>
+
     <input id="customerName" placeholder="اسم العميل">
+    <input id="phone" placeholder="رقم الموبايل">
     <input id="businessName" placeholder="اسم النشاط">
-    <textarea id="address" placeholder="العنوان"></textarea>
+    <textarea id="address" placeholder="العنوان بالتفصيل"></textarea>
 
     <button onclick="sendOrder()">إرسال الطلب</button>
     <button onclick="showBrands()">رجوع</button>
   `;
 }
 
-// تعديل
+// تعديل الكمية
 function changeQty(name, change){
   if(cart[name]){
     cart[name].qty += change;
@@ -341,23 +346,33 @@ function changeQty(name, change){
   updateTotal();
 }
 
+// حذف منتج
 function removeItem(name){
   delete cart[name];
   goReview();
   updateTotal();
 }
 
-// إرسال
+// إرسال الطلب مع التحقق
 function sendOrder(){
-  let name = document.getElementById("customerName").value;
-  let business = document.getElementById("businessName").value;
-  let address = document.getElementById("address").value;
+  let name = document.getElementById("customerName").value.trim();
+  let phone = document.getElementById("phone").value.trim();
+  let business = document.getElementById("businessName").value.trim();
+  let address = document.getElementById("address").value.trim();
 
-  let msg = "طلب جديد:%0A%0A";
+  if(!name || !phone || !business || !address){
+    alert("من فضلك املأ جميع البيانات قبل إرسال الطلب");
+    return;
+  }
 
-  msg += "👤 " + name + "%0A";
-  msg += "🏪 " + business + "%0A";
-  msg += "📍 " + address + "%0A%0A";
+  let msg = "طلب جديد من كتالوج الأهرام:%0A%0A";
+
+  msg += "👤 الاسم: " + name + "%0A";
+  msg += "📞 الموبايل: " + phone + "%0A";
+  msg += "🏪 النشاط: " + business + "%0A";
+  msg += "📍 العنوان: " + address + "%0A%0A";
+
+  msg += "📦 الطلب:%0A";
 
   for(let item in cart){
     let p = cart[item];
