@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأهرام للتجارة والتوزيع</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+body {
+  font-family: 'Cairo', sans-serif;
+  margin:0;
+  background:#eef2f7;
+}
+
+header {
+  background: linear-gradient(135deg,#0b3d91,#1e5ed8);
+  color:#fff;
+  padding:20px;
+  text-align:center;
+}
+
+.contact {
+  margin-top:10px;
+}
+
+.contact a {
+  color:#fff;
+  text-decoration:none;
+  background:rgba(255,255,255,0.2);
+  padding:8px 12px;
+  border-radius:8px;
+  font-size:14px;
+  margin:3px;
+  display:inline-block;
+}
+
+.section {
+  padding:15px;
+}
+
+.section h3 {
+  margin-bottom:10px;
+  color:#0b3d91;
+}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+  gap:12px;
+}
+
+.card {
+  background:#fff;
+  padding:10px;
+  border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.05);
+  text-align:center;
+}
+
+.card img {
+  width:100%;
+  height:120px;
+  object-fit:contain;
+}
+
+.price {
+  color:#1e5ed8;
+  font-weight:bold;
+}
+
+select, input {
+  width:80px;
+  margin-top:5px;
+  padding:4px;
+  text-align:center;
+}
+
+button {
+  background:#25d366;
+  color:#fff;
+  border:none;
+  padding:15px;
+  width:90%;
+  margin:15px auto;
+  display:block;
+  font-size:16px;
+  border-radius:10px;
+  cursor:pointer;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <h2>الأهرام للتجارة والتوزيع</h2>
+  <p>اختار المنتجات واضغط إرسال الطلب</p>
+
+  <div class="contact">
+    <a href="tel:01040880002">📞 مبيعات: 01040880002</a>
+    <a href="https://wa.me/201552670465">💬 واتساب</a>
+  </div>
+</header>
+
+<div id="app"></div>
+
+<button onclick="sendOrder()">إرسال الطلب عبر واتساب</button>
+
+<script>
+let cart = {};
+
+fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
+.then(res => res.json())
+.then(data => {
+
+  const app = document.getElementById("app");
+  const grouped = {};
+
+  data.forEach(p => {
+    if(!grouped[p.company]) grouped[p.company] = [];
+    grouped[p.company].push(p);
+  });
+
+  for (let company in grouped) {
+
+    let section = document.createElement("div");
+    section.className = "section";
+
+    section.innerHTML = `<h3>${company}</h3><div class="grid"></div>`;
+
+    let grid = section.querySelector(".grid");
+
+    grouped[company].forEach(p => {
+
+      let card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <img src="${p.image || 'https://via.placeholder.com/150'}">
+        <h4>${p.name}</h4>
+        <p class="price">${p.price} جنيه</p>
+
+        <select onchange="updateUnit('${p.name}', this.value)">
+          <option value="">الوحدة</option>
+          <option value="كرتونة">كرتونة</option>
+          <option value="دستة">دستة</option>
+          <option value="قطعة">قطعة</option>
+        </select>
+
+        <input type="number" min="0" placeholder="عدد"
+          onchange="updateCart('${p.name}', ${p.price}, this.value)">
+      `;
+
+      grid.appendChild(card);
+    });
+
+    app.appendChild(section);
+  }
+
+});
+
+function updateUnit(name, unit){
+  if(!cart[name]) cart[name] = {};
+  cart[name].unit = unit;
+}
+
+function updateCart(name, price, qty){
+  qty = parseInt(qty);
+  if(qty > 0){
+    if(!cart[name]) cart[name] = {};
+    cart[name].price = price;
+    cart[name].qty = qty;
+  } else {
+    delete cart[name];
+  }
+}
+
+function sendOrder(){
+  let msg = "طلب جديد من موقع الأهرام:%0A";
+
+  for (let item in cart){
+    let unit = cart[item].unit || "بدون تحديد";
+    msg += `${item} × ${cart[item].qty} (${unit})%0A`;
+  }
+
+  msg += "%0Aيرجى التواصل لتأكيد الطلب";
+
+  window.open(`https://wa.me/201552670465?text=${msg}`);
+}
+</script>
+
+</body>
+</html>
