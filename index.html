@@ -10,21 +10,11 @@
 <style>
 body {font-family:'Cairo'; margin:0; background:#eef2f7; padding-bottom:110px}
 
-header {
-  background:#0b3d91;
-  color:#fff;
-  text-align:center;
-}
+header {background:#0b3d91;color:#fff;text-align:center}
 
-.banner {
-  width:100%;
-  height:180px;
-  object-fit:cover;
-}
+.banner {width:100%;height:180px;object-fit:cover}
 
-.header-content {
-  padding:10px;
-}
+.header-content {padding:10px}
 
 .contact a {
   color:#fff;
@@ -50,31 +40,13 @@ header {
   text-align:center;
 }
 
-.card img {
-  width:100%;
-  height:100px;
-  object-fit:contain;
-}
+.card img {width:100%;height:100px;object-fit:contain}
 
-.price-carton {
-  color:#0b3d91;
-  font-weight:bold;
-  font-size:13px;
-}
+.price-carton {color:#0b3d91;font-weight:bold;font-size:13px}
 
-.search {
-  width:90%;
-  margin:10px auto;
-  padding:8px;
-  display:block;
-}
+.search {width:90%;margin:10px auto;padding:8px;display:block}
 
-input, select, textarea {
-  width:90%;
-  margin:5px auto;
-  padding:8px;
-  display:block;
-}
+input, select, textarea {width:90%;margin:5px auto;padding:8px;display:block}
 
 button {
   background:#25d366;
@@ -187,19 +159,6 @@ function showProducts(company){
   search.oninput = () => renderProducts(search.value);
   app.appendChild(search);
 
-  let sortBtn = document.createElement("button");
-  sortBtn.innerText = "💰 ترتيب";
-
-  sortBtn.onclick = () => {
-    currentProducts.sort((a,b)=>
-      sortAsc ? a.price_carton-b.price_carton : b.price_carton-a.price_carton
-    );
-    sortAsc = !sortAsc;
-    renderProducts("");
-  };
-
-  app.appendChild(sortBtn);
-
   let container = document.createElement("div");
   container.id = "products";
   app.appendChild(container);
@@ -229,9 +188,15 @@ function renderProducts(filter){
   list.forEach(p => {
 
     let options = "";
-    if(p.price_carton) options += `<option data-price="${p.price_carton}">كرتونة</option>`;
-    if(p.price_unit) options += `<option data-price="${p.price_unit}">دستة</option>`;
-    if(p.price_piece) options += `<option data-price="${p.price_piece}">قطعة</option>`;
+
+    if(p.price_carton && p.price_carton != "")
+      options += `<option data-price="${p.price_carton}">كرتونة</option>`;
+
+    if(p.price_unit && p.price_unit != "")
+      options += `<option data-price="${p.price_unit}">دستة</option>`;
+
+    if(p.price_piece && p.price_piece != "")
+      options += `<option data-price="${p.price_piece}">قطعة</option>`;
 
     let card = document.createElement("div");
     card.className = "card";
@@ -242,7 +207,7 @@ function renderProducts(filter){
       <div class="price-carton">سعر الكرتونة: ${p.price_carton || "-"} جنيه</div>
 
       <select onchange="setUnit('${p.name}', this)">
-        <option>اختر الوحدة</option>
+        <option value="">اختر الوحدة</option>
         ${options}
       </select>
 
@@ -260,7 +225,10 @@ function renderProducts(filter){
 function setUnit(name, el){
   let price = el.options[el.selectedIndex].getAttribute("data-price");
 
+  if(!price) return;
+
   if(!cart[name]) cart[name] = {};
+
   cart[name].price = parseFloat(price);
   cart[name].unit = el.value;
 
@@ -294,7 +262,7 @@ function updateTotal(){
   document.getElementById("total").innerText = total + " جنيه";
 }
 
-// مراجعة الطلب
+// مراجعة
 function goReview(){
   const app = document.getElementById("app");
   app.innerHTML = "<h3 style='text-align:center'>مراجعة الطلب</h3>";
@@ -322,21 +290,17 @@ function goReview(){
   app.innerHTML += `
     <h3 style="text-align:center">الإجمالي: ${total} جنيه</h3>
 
-    <p style="text-align:center;color:#0b3d91;font-weight:bold">
-      الأهرام للتجارة والتوزيع يسعدنا تواجدكم في كتالوج الأهرام
-    </p>
-
     <input id="customerName" placeholder="اسم العميل">
     <input id="phone" placeholder="رقم الموبايل">
     <input id="businessName" placeholder="اسم النشاط">
-    <textarea id="address" placeholder="العنوان بالتفصيل"></textarea>
+    <textarea id="address" placeholder="العنوان"></textarea>
 
     <button onclick="sendOrder()">إرسال الطلب</button>
     <button onclick="showBrands()">رجوع</button>
   `;
 }
 
-// تعديل الكمية
+// تعديل
 function changeQty(name, change){
   if(cart[name]){
     cart[name].qty += change;
@@ -346,14 +310,13 @@ function changeQty(name, change){
   updateTotal();
 }
 
-// حذف منتج
 function removeItem(name){
   delete cart[name];
   goReview();
   updateTotal();
 }
 
-// إرسال الطلب مع التحقق
+// إرسال
 function sendOrder(){
   let name = document.getElementById("customerName").value.trim();
   let phone = document.getElementById("phone").value.trim();
@@ -361,23 +324,27 @@ function sendOrder(){
   let address = document.getElementById("address").value.trim();
 
   if(!name || !phone || !business || !address){
-    alert("من فضلك املأ جميع البيانات قبل إرسال الطلب");
+    alert("من فضلك املأ جميع البيانات");
     return;
   }
 
+  let total = 0;
   let msg = "طلب جديد من كتالوج الأهرام:%0A%0A";
 
-  msg += "👤 الاسم: " + name + "%0A";
-  msg += "📞 الموبايل: " + phone + "%0A";
-  msg += "🏪 النشاط: " + business + "%0A";
-  msg += "📍 العنوان: " + address + "%0A%0A";
+  msg += "👤 " + name + "%0A";
+  msg += "📞 " + phone + "%0A";
+  msg += "🏪 " + business + "%0A";
+  msg += "📍 " + address + "%0A%0A";
 
   msg += "📦 الطلب:%0A";
 
   for(let item in cart){
     let p = cart[item];
+    total += p.price * p.qty;
     msg += `${item} × ${p.qty} (${p.unit})%0A`;
   }
+
+  msg += "%0A💰 الإجمالي: " + total + " جنيه";
 
   window.open(`https://wa.me/201552670465?text=${msg}`);
 }
