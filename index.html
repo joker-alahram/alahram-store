@@ -8,13 +8,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:'Cairo'; margin:0; background:#eef2f7; padding-bottom:100px}
+body {font-family:'Cairo'; margin:0; background:#eef2f7; padding-bottom:110px}
 
 header {
   background:#0b3d91;
   color:#fff;
-  padding:15px;
   text-align:center;
+}
+
+.banner {
+  width:100%;
+  height:180px;
+  object-fit:cover;
+}
+
+.header-content {
+  padding:10px;
 }
 
 .contact a {
@@ -60,11 +69,18 @@ header {
   display:block;
 }
 
+input, select, textarea {
+  width:90%;
+  margin:5px auto;
+  padding:8px;
+  display:block;
+}
+
 button {
   background:#25d366;
   color:#fff;
   border:none;
-  padding:8px;
+  padding:10px;
   border-radius:8px;
   margin:5px;
 }
@@ -94,12 +110,14 @@ button {
 <body>
 
 <header>
+<img class="banner" src="https://drive.google.com/uc?export=view&id=1QsrdCf4qFz-CdU2Ix_i0d5M-LVAraBuc">
+<div class="header-content">
 <h2>الأهرام للتجارة والتوزيع</h2>
-<p>توريد مستحضرات التجميل والعناية الشخصية</p>
 
 <div class="contact">
   <a href="tel:01040880002">📞 مبيعات</a>
   <a href="https://wa.me/201552670465">💬 واتساب</a>
+</div>
 </div>
 </header>
 
@@ -123,7 +141,7 @@ fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
   showBrands();
 });
 
-// ====== الشركات ======
+// الشركات
 function showBrands(){
   const app = document.getElementById("app");
   app.innerHTML = "";
@@ -134,13 +152,13 @@ function showBrands(){
   grid.className = "grid";
 
   brands.forEach(b => {
-    let brandLogo = data.find(p => p.company === b)?.brand_image;
+    let logo = data.find(p => p.company === b)?.brand_image;
 
     let card = document.createElement("div");
     card.className = "card";
 
     card.innerHTML = `
-      <img src="${brandLogo || 'https://via.placeholder.com/150'}">
+      <img src="${logo || 'https://via.placeholder.com/150'}">
       <h3>${b}</h3>
     `;
 
@@ -151,7 +169,7 @@ function showBrands(){
   app.appendChild(grid);
 }
 
-// ====== المنتجات ======
+// المنتجات
 function showProducts(company){
   const app = document.getElementById("app");
   app.innerHTML = "";
@@ -165,22 +183,17 @@ function showProducts(company){
   app.appendChild(back);
 
   let search = document.createElement("input");
-  search.className = "search";
-  search.placeholder = "🔍 ابحث (مثال: ريد 400)";
+  search.placeholder = "🔍 بحث";
   search.oninput = () => renderProducts(search.value);
   app.appendChild(search);
 
   let sortBtn = document.createElement("button");
-  sortBtn.innerText = "💰 الأقل للأعلى";
+  sortBtn.innerText = "💰 ترتيب";
 
   sortBtn.onclick = () => {
-    if(sortAsc){
-      currentProducts.sort((a,b)=>a.price_carton-b.price_carton);
-      sortBtn.innerText = "🔄 الأعلى للأقل";
-    } else {
-      currentProducts.sort((a,b)=>b.price_carton-a.price_carton);
-      sortBtn.innerText = "💰 الأقل للأعلى";
-    }
+    currentProducts.sort((a,b)=>
+      sortAsc ? a.price_carton-b.price_carton : b.price_carton-a.price_carton
+    );
     sortAsc = !sortAsc;
     renderProducts("");
   };
@@ -194,18 +207,16 @@ function showProducts(company){
   renderProducts("");
 }
 
-// ====== البحث الذكي ======
+// البحث الذكي
 function smartSearch(products, filter){
-  let words = filter.toLowerCase().split(" ").filter(w => w);
-
-  return products.filter(p => {
+  let words = filter.toLowerCase().split(" ").filter(w=>w);
+  return products.filter(p=>{
     let name = p.name.toLowerCase();
-
-    return words.every(word => name.includes(word));
+    return words.every(w=>name.includes(w));
   });
 }
 
-// ====== رسم المنتجات ======
+// عرض المنتجات
 function renderProducts(filter){
   let container = document.getElementById("products");
   container.innerHTML = "";
@@ -245,7 +256,7 @@ function renderProducts(filter){
   container.appendChild(grid);
 }
 
-// ====== السلة ======
+// السلة
 function setUnit(name, el){
   let price = el.options[el.selectedIndex].getAttribute("data-price");
 
@@ -269,7 +280,7 @@ function setQty(name, qty){
   updateTotal();
 }
 
-// ====== الإجمالي ======
+// الإجمالي
 function updateTotal(){
   let total = 0;
 
@@ -283,7 +294,7 @@ function updateTotal(){
   document.getElementById("total").innerText = total + " جنيه";
 }
 
-// ====== مراجعة الطلب ======
+// مراجعة
 function goReview(){
   const app = document.getElementById("app");
   app.innerHTML = "<h3 style='text-align:center'>مراجعة الطلب</h3>";
@@ -310,11 +321,17 @@ function goReview(){
 
   app.innerHTML += `
     <h3 style="text-align:center">الإجمالي: ${total} جنيه</h3>
+
+    <input id="customerName" placeholder="اسم العميل">
+    <input id="businessName" placeholder="اسم النشاط">
+    <textarea id="address" placeholder="العنوان"></textarea>
+
     <button onclick="sendOrder()">إرسال الطلب</button>
     <button onclick="showBrands()">رجوع</button>
   `;
 }
 
+// تعديل
 function changeQty(name, change){
   if(cart[name]){
     cart[name].qty += change;
@@ -330,17 +347,22 @@ function removeItem(name){
   updateTotal();
 }
 
-// ====== إرسال ======
+// إرسال
 function sendOrder(){
-  let msg = "طلب جديد من موقع الأهرام:%0A%0A";
+  let name = document.getElementById("customerName").value;
+  let business = document.getElementById("businessName").value;
+  let address = document.getElementById("address").value;
+
+  let msg = "طلب جديد:%0A%0A";
+
+  msg += "👤 " + name + "%0A";
+  msg += "🏪 " + business + "%0A";
+  msg += "📍 " + address + "%0A%0A";
 
   for(let item in cart){
     let p = cart[item];
-    msg += `📦 ${item}%0A`;
-    msg += `الكمية: ${p.qty} (${p.unit})%0A%0A`;
+    msg += `${item} × ${p.qty} (${p.unit})%0A`;
   }
-
-  msg += "📞 سيتم التواصل لتأكيد الطلب";
 
   window.open(`https://wa.me/201552670465?text=${msg}`);
 }
