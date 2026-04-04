@@ -9,11 +9,8 @@
 
 <style>
 body {font-family:'Cairo'; margin:0; background:#eef2f7; padding-bottom:110px}
-
 header {background:#0b3d91;color:#fff;text-align:center}
-
 .banner {width:100%;height:180px;object-fit:cover}
-
 .header-content {padding:10px}
 
 .contact a {
@@ -46,7 +43,12 @@ header {background:#0b3d91;color:#fff;text-align:center}
 
 .search {width:90%;margin:10px auto;padding:8px;display:block}
 
-input, select, textarea {width:90%;margin:5px auto;padding:8px;display:block}
+input, select, textarea {
+  width:90%;
+  margin:5px auto;
+  padding:8px;
+  display:block;
+}
 
 button {
   background:#25d366;
@@ -68,13 +70,6 @@ button {
   display:flex;
   justify-content:space-between;
   border-top:1px solid #ddd;
-}
-
-.review-item {
-  background:#fff;
-  padding:10px;
-  margin:10px;
-  border-radius:10px;
 }
 </style>
 
@@ -104,7 +99,6 @@ button {
 let data = [];
 let cart = {};
 let currentProducts = [];
-let sortAsc = true;
 
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(res => res.json())
@@ -187,16 +181,16 @@ function renderProducts(filter){
 
   list.forEach(p => {
 
+    let isAvailable = p.status != "0";
     let options = "";
 
-    if(p.price_carton && p.price_carton != "")
-      options += `<option data-price="${p.price_carton}">كرتونة</option>`;
+    if(isAvailable){
+      if(p.price_carton) options += `<option data-price="${p.price_carton}">كرتونة</option>`;
+      if(p.price_unit) options += `<option data-price="${p.price_unit}">دستة</option>`;
+    }
 
-    if(p.price_unit && p.price_unit != "")
-      options += `<option data-price="${p.price_unit}">دستة</option>`;
-
-    if(p.price_piece && p.price_piece != "")
-      options += `<option data-price="${p.price_piece}">قطعة</option>`;
+    let disabledText = !isAvailable ? `<div style="color:red">قريبًا سيصل للمخزن</div>` : "";
+    let disabledAttr = !isAvailable ? "disabled" : "";
 
     let card = document.createElement("div");
     card.className = "card";
@@ -206,12 +200,14 @@ function renderProducts(filter){
       <h4>${p.name}</h4>
       <div class="price-carton">سعر الكرتونة: ${p.price_carton || "-"} جنيه</div>
 
-      <select onchange="setUnit('${p.name}', this)">
+      ${disabledText}
+
+      <select ${disabledAttr} onchange="setUnit('${p.name}', this)">
         <option value="">اختر الوحدة</option>
         ${options}
       </select>
 
-      <input type="number" min="0"
+      <input type="number" min="0" ${disabledAttr}
         onchange="setQty('${p.name}', this.value)">
     `;
 
@@ -224,11 +220,9 @@ function renderProducts(filter){
 // السلة
 function setUnit(name, el){
   let price = el.options[el.selectedIndex].getAttribute("data-price");
-
   if(!price) return;
 
   if(!cart[name]) cart[name] = {};
-
   cart[name].price = parseFloat(price);
   cart[name].unit = el.value;
 
@@ -274,21 +268,19 @@ function goReview(){
     total += p.price * p.qty;
 
     app.innerHTML += `
-      <div class="review-item">
+      <div>
         <h4>${item}</h4>
         <p>${p.unit}</p>
-
-        <button onclick="changeQty('${item}',1)">➕</button>
-        <button onclick="changeQty('${item}',-1)">➖</button>
-        <button onclick="removeItem('${item}')">❌ حذف</button>
-
+        <button onclick="changeQty('${item}',1)">+</button>
+        <button onclick="changeQty('${item}',-1)">-</button>
+        <button onclick="removeItem('${item}')">حذف</button>
         <p>الكمية: ${p.qty}</p>
       </div>
     `;
   }
 
   app.innerHTML += `
-    <h3 style="text-align:center">الإجمالي: ${total} جنيه</h3>
+    <h3>الإجمالي: ${total} جنيه</h3>
 
     <input id="customerName" placeholder="اسم العميل">
     <input id="phone" placeholder="رقم الموبايل">
@@ -329,7 +321,7 @@ function sendOrder(){
   }
 
   let total = 0;
-  let msg = "طلب جديد من كتالوج الأهرام:%0A%0A";
+  let msg = "طلب جديد:%0A%0A";
 
   msg += "👤 " + name + "%0A";
   msg += "📞 " + phone + "%0A";
