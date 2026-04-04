@@ -97,15 +97,24 @@ button {
 let data = [];
 let cart = {};
 let currentProducts = [];
+let locationLink = "";
 
+// تحميل البيانات + استرجاع السلة
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(res => res.json())
 .then(res => {
   data = res;
+
+  let savedCart = localStorage.getItem("cart");
+  if(savedCart){
+    cart = JSON.parse(savedCart);
+    updateTotal();
+  }
+
   showBrands();
 });
 
-// الشركات
+// عرض الشركات
 function showBrands(){
   const app = document.getElementById("app");
   app.innerHTML = "";
@@ -133,7 +142,7 @@ function showBrands(){
   app.appendChild(grid);
 }
 
-// المنتجات
+// عرض المنتجات
 function showProducts(company){
   const app = document.getElementById("app");
   app.innerHTML = "";
@@ -158,7 +167,7 @@ function showProducts(company){
   renderProducts("");
 }
 
-// بحث ذكي
+// بحث
 function smartSearch(products, filter){
   let words = filter.toLowerCase().split(" ").filter(w=>w);
   return products.filter(p=>{
@@ -211,7 +220,7 @@ function renderProducts(filter){
       ${disabledText}
 
       <select ${disabledAttr}
-        style="background:#f0f4ff;border:1px solid #0b3d91;color:#0b3d91;font-weight:bold;"
+        style="background:#f0f4ff;border:1px solid #0b3d91;font-weight:bold;"
         onchange="setUnit('${p.name}', this)">
         <option value="" disabled selected>📦 اختر الوحدة</option>
         ${options}
@@ -252,16 +261,20 @@ function setQty(name, qty){
   updateTotal();
 }
 
-// الإجمالي
+// الإجمالي + حفظ السلة
 function updateTotal(){
   let total = 0;
+
   for(let i in cart){
     let p = cart[i];
     if(p.price && p.qty){
       total += p.price * p.qty;
     }
   }
+
   document.getElementById("total").innerText = total + " جنيه";
+
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 // مراجعة الطلب
@@ -295,9 +308,33 @@ function goReview(){
     <input id="businessName" placeholder="اسم النشاط">
     <textarea id="address" placeholder="العنوان"></textarea>
 
+    <button onclick="getLocation()">📍 تحديد الموقع</button>
+    <p id="locationStatus" style="color:green;font-size:12px;"></p>
+
     <button onclick="sendOrder()">إرسال الطلب</button>
+    <button onclick="clearCart()" style="background:red">مسح الطلب</button>
     <button onclick="showBrands()">رجوع</button>
   `;
+
+  // استرجاع بيانات العميل
+  setTimeout(()=>{
+    document.getElementById("customerName").value = localStorage.getItem("customerName") || "";
+    document.getElementById("phone").value = localStorage.getItem("phone") || "";
+    document.getElementById("businessName").value = localStorage.getItem("business") || "";
+    document.getElementById("address").value = localStorage.getItem("address") || "";
+  },100);
+}
+
+// الموقع
+function getLocation(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(position=>{
+      let lat = position.coords.latitude;
+      let lng = position.coords.longitude;
+      locationLink = `https://maps.google.com/?q=${lat},${lng}`;
+      document.getElementById("locationStatus").innerText = "✔ تم تحديد الموقع";
+    });
+  }
 }
 
 // تعديل
@@ -316,7 +353,15 @@ function removeItem(name){
   updateTotal();
 }
 
-// إرسال
+// مسح السلة
+function clearCart(){
+  cart = {};
+  localStorage.removeItem("cart");
+  updateTotal();
+  showBrands();
+}
+
+// إرسال الطلب
 function sendOrder(){
   let name = document.getElementById("customerName").value.trim();
   let phone = document.getElementById("phone").value.trim();
@@ -327,6 +372,12 @@ function sendOrder(){
     alert("من فضلك املأ جميع البيانات");
     return;
   }
+
+  // حفظ بيانات العميل
+  localStorage.setItem("customerName", name);
+  localStorage.setItem("phone", phone);
+  localStorage.setItem("business", business);
+  localStorage.setItem("address", address);
 
   let total = 0;
   let msg = "طلب جديد:%0A%0A";
@@ -346,9 +397,13 @@ function sendOrder(){
 
   msg += "%0A💰 الإجمالي: " + total + " جنيه";
 
+  if(locationLink){
+    msg += "%0A📍 الموقع:%0A" + locationLink;
+  }
+
   window.open(`https://wa.me/201552670465?text=${msg}`);
 }
 </script>
 
 </body>
-</html>
+  </html>
