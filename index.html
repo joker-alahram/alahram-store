@@ -41,8 +41,6 @@ header {background:#0b3d91;color:#fff;text-align:center}
 
 .price-carton {color:#0b3d91;font-weight:bold;font-size:13px}
 
-.search {width:90%;margin:10px auto;padding:8px;display:block}
-
 input, select, textarea {
   width:90%;
   margin:5px auto;
@@ -181,12 +179,24 @@ function renderProducts(filter){
 
   list.forEach(p => {
 
-    let isAvailable = p.status != "0";
+    let status = (p.status || "").toString().trim();
+    let isAvailable = status !== "0";
+
+    let carton = (p.price_carton || "").toString().trim();
+    let unit = (p.price_unit || "").toString().trim();
+    let piece = (p.price_piece || "").toString().trim();
+
     let options = "";
 
     if(isAvailable){
-      if(p.price_carton) options += `<option data-price="${p.price_carton}">كرتونة</option>`;
-      if(p.price_unit) options += `<option data-price="${p.price_unit}">دستة</option>`;
+      if(carton && !isNaN(carton))
+        options += `<option data-price="${carton}">كرتونة</option>`;
+
+      if(unit && !isNaN(unit))
+        options += `<option data-price="${unit}">دستة</option>`;
+
+      if(piece && !isNaN(piece))
+        options += `<option data-price="${piece}">قطعة</option>`;
     }
 
     let disabledText = !isAvailable ? `<div style="color:red">قريبًا سيصل للمخزن</div>` : "";
@@ -198,7 +208,10 @@ function renderProducts(filter){
     card.innerHTML = `
       <img src="${p.image || 'https://via.placeholder.com/150'}">
       <h4>${p.name}</h4>
-      <div class="price-carton">سعر الكرتونة: ${p.price_carton || "-"} جنيه</div>
+
+      <div class="price-carton">
+        سعر الكرتونة: ${carton || "-"} جنيه
+      </div>
 
       ${disabledText}
 
@@ -256,7 +269,7 @@ function updateTotal(){
   document.getElementById("total").innerText = total + " جنيه";
 }
 
-// مراجعة
+// مراجعة الطلب
 function goReview(){
   const app = document.getElementById("app");
   app.innerHTML = "<h3 style='text-align:center'>مراجعة الطلب</h3>";
@@ -292,7 +305,7 @@ function goReview(){
   `;
 }
 
-// تعديل
+// تعديل الكمية
 function changeQty(name, change){
   if(cart[name]){
     cart[name].qty += change;
@@ -308,7 +321,7 @@ function removeItem(name){
   updateTotal();
 }
 
-// إرسال
+// إرسال الطلب
 function sendOrder(){
   let name = document.getElementById("customerName").value.trim();
   let phone = document.getElementById("phone").value.trim();
