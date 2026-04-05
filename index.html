@@ -3,66 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الأهرام للتجارة والتوزيع</title>
+<title>الأهرام</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:120px}
+body{font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:120px}
 
-/* الهيدر */
-header {background:linear-gradient(135deg,#0b3d91,#1565c0);color:#fff;text-align:center}
-.banner {width:100%;height:150px;object-fit:cover}
+/* HEADER IMAGE */
+.hero{
+position:relative;
+height:180px;
+overflow:hidden;
+}
+.hero img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+.overlay{
+position:absolute;
+top:0;
+right:0;
+left:0;
+bottom:0;
+background:rgba(0,0,0,0.35);
+}
+.company-name{
+position:absolute;
+top:15px;
+right:15px;
+color:#fff;
+font-weight:bold;
+font-size:18px;
+background:rgba(0,0,0,0.4);
+padding:5px 10px;
+border-radius:8px;
+}
 
-/* الشريط */
-.ticker {background:#0b3d91;color:#fff;overflow:hidden;white-space:nowrap}
-.ticker span {display:inline-block;padding:10px;animation:scrollRTL 15s linear infinite}
-@keyframes scrollRTL {from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+/* NEWS */
+.ticker{background:#c62828;color:#fff;overflow:hidden;white-space:nowrap}
+.ticker span{display:inline-block;padding:10px;font-weight:bold;animation:scrollRTL 18s linear infinite}
+@keyframes scrollRTL{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-/* الشريحة */
-.tier-banner {background:#ffeb3b;padding:8px;text-align:center;font-weight:bold}
+/* TIER */
+.tier-banner{background:#ffd600;padding:8px;text-align:center;font-weight:bold}
 
-/* الأزرار */
-.tier-buttons {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px}
-.tier-buttons button {background:#0b3d91;color:#fff;border:none;padding:8px 12px;border-radius:8px}
-.offer-btn {background:#e53935}
-.clear-tier {background:#000}
+/* BUTTONS */
+.tier-buttons{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:10px}
+.tier-buttons button{border:none;padding:8px 10px;border-radius:20px;color:#fff;cursor:pointer;font-size:12px}
+.offer-btn{background:#e53935}
+.clear-btn{background:#000}
 
-/* الرجوع */
-.back-inline {display:inline-block;background:#e53935;color:#fff;padding:8px 14px;border-radius:8px;margin:10px}
+/* SEARCH */
+.search{
+width:90%;
+margin:10px auto;
+display:block;
+padding:10px;
+border-radius:10px;
+border:1px solid #ccc;
+}
 
-/* الجريد */
-.grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px}
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px}
 
-/* الكروت */
-.card {background:#fff;padding:10px;border-radius:12px;text-align:center}
-.card img {width:100%;height:110px;object-fit:contain}
+/* CARD */
+.card{background:#fff;padding:10px;border-radius:12px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,0.08)}
+.card img{width:100%;height:100px;object-fit:contain}
 
-/* البراند */
-.brand-logo img {width:80%;height:80%}
-
-/* اختيار الوحدة */
-select {
+/* SELECT + INPUT */
+select,input{
 width:100%;
 padding:8px;
 border-radius:8px;
-border:2px solid #0b3d91;
-background:#e3f2fd;
+margin-top:5px;
 font-weight:bold;
 }
+select{background:#e3f2fd;border:2px solid #0b3d91}
+input{background:#fff3e0;border:2px solid #ff9800}
 
-/* الكمية */
-input[type=number] {
-width:100%;
-padding:8px;
-border-radius:8px;
-border:2px solid #ff9800;
-background:#fff3e0;
-font-weight:bold;
-}
+/* PRICE */
+.old{color:#999;text-decoration:line-through;font-size:13px}
+.new{color:#2e7d32;font-weight:bold}
 
-/* أسفل */
-.bottom-bar {
+/* REVIEW */
+.review-card{background:#fff;padding:10px;margin:10px;border-radius:10px}
+.review-actions button{margin:3px}
+
+/* BOTTOM */
+.bottom-bar{
 position:fixed;
 bottom:0;
 width:100%;
@@ -70,159 +100,148 @@ background:#fff;
 padding:10px;
 display:flex;
 justify-content:space-between;
+align-items:center;
 border-top:1px solid #ddd;
 }
-
-/* مراجعة */
-.review-card {
-background:#fff;
-padding:10px;
-margin:10px;
-border-radius:10px;
+.review-btn{
+background:#25D366;
+color:#fff;
+border:none;
+padding:12px 20px;
+border-radius:30px;
+font-size:16px;
+font-weight:bold;
 }
-.review-card button {
-margin:3px;
-padding:5px 10px;
+
+/* SEND */
+.send-btn{
+display:block;
+margin:20px auto;
+background:#0b3d91;
+color:#fff;
+padding:12px 30px;
+border:none;
+border-radius:10px;
+font-size:18px;
 }
 </style>
 </head>
 
 <body>
 
-<header>
-<img id="companyImage" class="banner">
-<h2>الأهرام للتجارة والتوزيع</h2>
-</header>
+<div class="hero">
+<img id="companyImage">
+<div class="overlay"></div>
+<div class="company-name">الأهرام للتجارة والتوزيع</div>
+</div>
 
 <div class="ticker"><span id="newsText"></span></div>
 
 <div id="tierBanner"></div>
 <div class="tier-buttons" id="tiers"></div>
 
-<input placeholder="🔍 بحث..." oninput="globalSearch(this.value)" style="width:90%;margin:10px">
+<input class="search" placeholder="🔍 بحث..." oninput="search(this.value)">
 
 <div id="app"></div>
 
-<div style="text-align:center;font-size:12px;margin-bottom:60px">
+<div style="text-align:center;font-size:12px;margin-bottom:70px">
 تم التصميم بواسطة YaSsEr EL Joker
 </div>
 
 <div class="bottom-bar">
 <div id="total">0 جنيه</div>
-<button onclick="goReview()">مراجعة الطلب</button>
+<button class="review-btn" onclick="goReview()">🧾 مراجعة الطلب</button>
 </div>
 
 <script>
 let data=[],cart={},tier=null,locationLink="";
 
-// تحميل
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(r=>r.json())
 .then(res=>{
 data=res;
-
-// استرجاع السلة
 cart=JSON.parse(localStorage.getItem("cart")||"{}");
-
-// استرجاع الشريحة
 tier=JSON.parse(localStorage.getItem("tier")||"null");
 
 updateTotal();
-updateTierBanner();
+renderTiers();
+updateBanner();
 
-// صورة الشركة
-let img=data.find(p=>p.company_image)?.company_image;
-if(img) document.getElementById("companyImage").src=img;
+document.getElementById("companyImage").src=data[0].company_image||"";
+document.getElementById("newsText").innerText=data[0].news||"";
 
-// الشريط
-let news=data.find(p=>p.news)?.news;
-if(news) document.getElementById("newsText").innerText=news;
-
-loadTiers();
 showBrands();
 });
 
-// حفظ
 function save(){
 localStorage.setItem("cart",JSON.stringify(cart));
 }
 
-// الشرائح
-function loadTiers(){
-let tiers=data.filter(p=>p.tier_name);
+function renderTiers(){
 let c=document.getElementById("tiers");
 c.innerHTML="";
+let tiers=data.filter(p=>p.tier_name && p.tier_active!="0");
 
-tiers.forEach(t=>{
+tiers.forEach((t,i)=>{
 let b=document.createElement("button");
 b.innerText=t.tier_name;
+b.style.background=`hsl(210,70%,${80-(i*8)}%)`;
 b.onclick=()=>selectTier(t);
 c.appendChild(b);
 });
 
 let offer=document.createElement("button");
-offer.innerText="صفقة اليوم";
+offer.innerText="🔥 صفقة اليوم";
 offer.className="offer-btn";
 offer.onclick=openOffers;
 c.appendChild(offer);
 
 let clear=document.createElement("button");
 clear.innerText="إلغاء الشريحة";
-clear.className="clear-tier";
+clear.className="clear-btn";
 clear.onclick=clearTier;
 c.appendChild(clear);
 }
 
 function selectTier(t){
 tier=t;
-localStorage.setItem("tier",JSON.stringify(t));
-
-// حذف العروض من السلة
-for(let i in cart){
-if(cart[i].company=="عروض") delete cart[i];
-}
+cart={};
 save();
-
-updateTierBanner();
+localStorage.setItem("tier",JSON.stringify(tier));
+updateBanner();
+alert("تم اختيار "+t.tier_name);
 }
 
 function clearTier(){
 tier=null;
 localStorage.removeItem("tier");
-updateTierBanner();
+updateBanner();
 }
 
-// تنبيه
-function updateTierBanner(){
+function updateBanner(){
 let el=document.getElementById("tierBanner");
 if(tier){
-el.innerHTML=`أنت على ${tier.tier_name} - الحد الأدنى ${tier.tier_min}`;
+el.innerHTML=`أنت على ${tier.tier_name} - خصم ${tier.tier_discount}%`;
 el.className="tier-banner";
 }else el.innerHTML="";
 }
 
-// الرئيسية
 function showBrands(){
 let app=document.getElementById("app");
 app.innerHTML="";
 
 let brands=[...new Set(data.map(p=>p.company))];
 
+if(tier) brands=brands.filter(b=>b!="صفقه اليوم");
+
 let grid=document.createElement("div");
 grid.className="grid";
 
 brands.forEach(b=>{
-let logo=data.find(p=>p.company==b)?.brand_image;
-
+let img=data.find(p=>p.company==b)?.brand_image;
 let card=document.createElement("div");
 card.className="card";
-card.innerHTML=`
-<div class="brand-logo">
-<img src="${logo}">
-</div>
-<h4>${b}</h4>
-`;
-
+card.innerHTML=`<img src="${img}"><h4>${b}</h4>`;
 card.onclick=()=>showProducts(b);
 grid.appendChild(card);
 });
@@ -230,53 +249,34 @@ grid.appendChild(card);
 app.appendChild(grid);
 }
 
-// المنتجات
 function showProducts(company){
 let app=document.getElementById("app");
-app.innerHTML=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div><h3>${company}</h3>`;
-
+app.innerHTML=`<div onclick="showBrands()" style="margin:10px;color:red">⬅ رجوع</div><h3>${company}</h3>`;
 let list=data.filter(p=>p.company==company);
 renderProducts(list);
 }
 
-// العروض
 function openOffers(){
-if(tier){
-alert("لا يمكن الدخول للعروض أثناء اختيار شريحة");
-return;
-}
-showProducts("عروض");
+if(tier){alert("غير متاح مع الشريحة");return;}
+showProducts("صفقه اليوم");
 }
 
-// البحث
-function globalSearch(q){
+function search(q){
 q=q.toLowerCase();
 if(!q){showBrands();return;}
-
-let results=data.filter(p=>p.name.toLowerCase().includes(q));
-let app=document.getElementById("app");
-app.innerHTML=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div>`;
-renderProducts(results);
+let list=data.filter(p=>p.name.toLowerCase().includes(q));
+renderProducts(list);
 }
 
-// عرض المنتجات
 function renderProducts(list){
 let app=document.getElementById("app");
-
 let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
-let carton=parseFloat(p.price_carton);
-let unit=parseFloat(p.price_unit);
-let piece=parseFloat(p.price_piece);
-
-let options="";
-if(!isNaN(carton)) options+=`<option data-price="${carton}">كرتونة</option>`;
-if(!isNaN(unit)) options+=`<option data-price="${unit}">دستة</option>`;
-if(!isNaN(piece)) options+=`<option data-price="${piece}">قطعة</option>`;
-
-let status=(p.status||"")=="0"?"نفذت الكمية ستصل قريبا":"";
+let price=parseFloat(p.price_carton);
+let discount=tier?price*(tier.tier_discount/100):0;
+let final=price-discount;
 
 let card=document.createElement("div");
 card.className="card";
@@ -284,166 +284,114 @@ card.className="card";
 card.innerHTML=`
 <img src="${p.image}">
 <h4>${p.name}</h4>
-<div>سعر الكرتونة: ${carton||"-"} جنيه</div>
-<div style="color:red">${status}</div>
+<div class="old">${price}</div>
+<div class="new">${final}</div>
 
 <select onchange="setUnit('${p.name}',this)">
-<option disabled selected>اختر الوحدة</option>
-${options}
+<option disabled selected>الوحدة</option>
+<option data-price="${final}">كرتونة</option>
 </select>
 
-<input type="number" placeholder="ادخل الكمية"
-onchange="setQty('${p.name}',this.value)">
+<input type="number" placeholder="الكمية" onchange="setQty('${p.name}',this.value)">
 `;
 
 grid.appendChild(card);
 });
 
-app.appendChild(grid);
+app.innerHTML+=grid.outerHTML;
 }
 
-// السلة
-function setUnit(name,el){
-let price=el.options[el.selectedIndex].getAttribute("data-price");
-if(!cart[name]) cart[name]={};
-cart[name].price=parseFloat(price);
-cart[name].unit=el.value;
-updateTotal();save();
+function setUnit(n,el){
+let price=el.options[el.selectedIndex].dataset.price;
+if(!cart[n]) cart[n]={};
+cart[n].price=+price;
+cart[n].unit=el.value;
+save();updateTotal();
 }
 
-function setQty(name,qty){
-qty=parseInt(qty);
-if(qty>0){
-if(!cart[name]) cart[name]={};
-cart[name].qty=qty;
-}else delete cart[name];
-updateTotal();save();
+function setQty(n,q){
+q=parseInt(q);
+if(q>0){
+if(!cart[n]) cart[n]={};
+cart[n].qty=q;
+}else delete cart[n];
+save();updateTotal();
 }
 
-// الإجمالي
 function updateTotal(){
-let total=0;
+let t=0;
 for(let i in cart){
 let p=cart[i];
-if(p.price&&p.qty) total+=p.price*p.qty;
+if(p.price&&p.qty) t+=p.price*p.qty;
 }
-document.getElementById("total").innerText=total+" جنيه";
+document.getElementById("total").innerText=t+" جنيه";
 }
 
-// مراجعة
 function goReview(){
 let app=document.getElementById("app");
-
-let total=0;
-let html=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div><h3>مراجعة الطلب</h3>`;
+let total=0,html="<h3>مراجعة الطلب</h3>";
 
 for(let i in cart){
 let p=cart[i];
-total+=p.price*p.qty;
+let sub=p.price*p.qty;
+total+=sub;
 
 html+=`
 <div class="review-card">
-<h4>${i}</h4>
-<p>${p.qty} × ${p.unit}</p>
-
-<button onclick="changeQty('${i}',1)">+</button>
-<button onclick="changeQty('${i}',-1)">-</button>
-<button onclick="removeItem('${i}')">حذف</button>
+${i}<br>
+${p.qty} × ${p.unit} = ${sub}
+<div class="review-actions">
+<button onclick="setQty('${i}',${p.qty+1})">+</button>
+<button onclick="setQty('${i}',${p.qty-1})">-</button>
+<button onclick="delete cart['${i}'];save();goReview();updateTotal()">حذف</button>
 </div>
-`;
+</div>`;
 }
-
-let discount=0;
-if(tier && total>=tier.tier_min){
-discount=total*(tier.tier_discount/100);
-}
-let net=total-discount;
 
 html+=`
-<h3>الإجمالي: ${total}</h3>
-<h3>الخصم: ${discount}</h3>
-<h3>الصافي: ${net}</h3>
-
 <input id="name" placeholder="الاسم">
-<input id="phone" placeholder="الموبايل">
+<input id="phone" placeholder="التليفون">
+<input id="activity" placeholder="النشاط">
 <textarea id="address" placeholder="العنوان"></textarea>
 
-<button onclick="getLocation()">📍 تحديد الموقع</button>
+<button onclick="getLocation()">📍 الموقع</button>
 <p id="loc"></p>
 
-<button onclick="sendOrder(${net},${total},${discount})">إرسال</button>
+<button class="send-btn" onclick="sendOrder(${total})">إرسال الطلب</button>
 `;
 
 app.innerHTML=html;
-
-// استرجاع بيانات
-setTimeout(()=>{
-document.getElementById("name").value=localStorage.getItem("name")||"";
-document.getElementById("phone").value=localStorage.getItem("phone")||"";
-document.getElementById("address").value=localStorage.getItem("address")||"";
-},100);
 }
 
-function changeQty(name,val){
-cart[name].qty+=val;
-if(cart[name].qty<=0) delete cart[name];
-save();goReview();updateTotal();
-}
-
-function removeItem(name){
-delete cart[name];
-save();goReview();updateTotal();
-}
-
-// الموقع
 function getLocation(){
-navigator.geolocation.getCurrentPosition(pos=>{
-locationLink=`https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+navigator.geolocation.getCurrentPosition(p=>{
+locationLink=`https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`;
 document.getElementById("loc").innerText="تم تحديد الموقع";
 });
 }
 
-// إرسال
-function sendOrder(net,total,discount){
+function sendOrder(total){
+let n=name.value,ph=phone.value,a=activity.value,ad=address.value;
 
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-let address=document.getElementById("address").value;
-
-if(!name||!phone||!address){
-alert("فضلا ادخل البيانات كامله");
-return;
+if(!n||!ph||!a||!ad){
+alert("فضلا ادخل البيانات كاملة");return;
 }
 
-// حفظ بيانات
-localStorage.setItem("name",name);
-localStorage.setItem("phone",phone);
-localStorage.setItem("address",address);
-
-// شرط الشريحة
 if(tier && total<tier.tier_min){
-alert("لم تحقق شرط الشريحة");
-return;
+alert("لم تحقق شرط الشريحة");return;
 }
 
-let msg="طلب:%0A";
+let msg="طلب جديد%0A";
+if(tier) msg+=`الشريحة: ${tier.tier_name}%0A`;
 
 for(let i in cart){
 let p=cart[i];
-msg+=`${i} × ${p.qty} (${p.unit}) = ${p.price*p.qty}%0A`;
+msg+=`${i} ${p.qty}×${p.unit}=${p.price*p.qty}%0A`;
 }
 
-msg+=`%0Aالإجمالي: ${total}`;
-msg+=`%0Aالخصم: ${discount}`;
-msg+=`%0Aالصافي: ${net}`;
+msg+=`الإجمالي: ${total}%0A${n}%0A${ph}%0A${a}%0A${ad}`;
 
-if(tier){
-msg+=`%0Aالشريحة: ${tier.tier_name}`;
-}
-
-if(locationLink){
-msg+=`%0Aالموقع: ${locationLink}`;
-}
+if(locationLink) msg+=`%0A${locationLink}`;
 
 window.open(`https://wa.me/201552670465?text=${msg}`);
 }
