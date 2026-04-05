@@ -8,21 +8,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:110px}
+body {font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:120px}
 
-/* هيدر */
+/* الهيدر */
 header {
 background:linear-gradient(135deg,#0b3d91,#1565c0);
-color:#fff;
-text-align:center;
+color:#fff;text-align:center;
 }
 .banner {width:100%;height:160px;object-fit:cover}
 
-/* شريط */
-.ticker {background:#0b3d91;color:#fff;overflow:hidden;white-space:nowrap}
+/* تنبيه الشريحة */
+.tier-banner {
+background:#fff3cd;
+color:#856404;
+text-align:center;
+padding:8px;
+font-weight:bold;
+}
+
+/* الشريط */
+.ticker {background:#0b3d91;color:#fff;overflow:hidden}
 .ticker span {
-display:inline-block;
-padding:10px;
+display:inline-block;padding:10px;
 animation:scrollRTL 15s linear infinite;
 }
 @keyframes scrollRTL {
@@ -30,7 +37,15 @@ from{transform:translateX(-100%)}
 to{transform:translateX(100%)}
 }
 
-/* زر الرجوع */
+/* أزرار الشرائح */
+.tiers {
+display:flex;gap:8px;justify-content:center;padding:10px;flex-wrap:wrap;
+}
+.tiers button {
+background:#222;color:#fff;border:none;padding:8px 12px;border-radius:8px;
+}
+
+/* رجوع */
 .back-inline {
 display:inline-block;
 background:#e53935;
@@ -38,60 +53,35 @@ color:#fff;
 padding:8px 14px;
 border-radius:8px;
 margin:10px;
-font-size:14px;
 cursor:pointer;
+}
+
+/* الجريد */
+.grid {
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:12px;padding:10px;
 }
 
 /* براند */
 .card.brand {
-background:#fff;
-border-radius:20px;
-overflow:hidden;
+background:#fff;border-radius:20px;overflow:hidden;
 box-shadow:0 8px 20px rgba(0,0,0,0.1);
 cursor:pointer;
 }
-.brand-logo {
-height:110px;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-.brand-logo img {
-width:80%;
-height:80%;
-object-fit:contain;
-}
-.brand-name {
-background:#f5f7fa;
-padding:8px;
-font-weight:bold;
-}
+.brand-logo {height:110px;display:flex;justify-content:center;align-items:center}
+.brand-logo img {width:80%;height:80%;object-fit:contain}
+.brand-name {background:#f5f7fa;padding:8px;font-weight:bold}
 
-/* منتجات */
+/* منتج */
 .card {background:#fff;padding:10px;border-radius:10px;text-align:center}
 .card img {width:100%;height:100px;object-fit:contain}
 
-.grid {
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
-gap:12px;
-padding:10px;
-}
-
-input,select,textarea {
-width:90%;
-margin:5px;
-padding:8px;
-}
-
+/* شريط سفلي */
 .bottom-bar {
-position:fixed;
-bottom:0;
-width:100%;
-background:#fff;
-padding:10px;
-display:flex;
-justify-content:space-between;
+position:fixed;bottom:0;width:100%;
+background:#fff;padding:10px;
+display:flex;justify-content:space-between;
 border-top:1px solid #ddd;
 }
 </style>
@@ -104,7 +94,19 @@ border-top:1px solid #ddd;
 <h2>الأهرام للتجارة والتوزيع</h2>
 </header>
 
+<div id="tierBanner" class="tier-banner" style="display:none"></div>
+
 <div class="ticker"><span id="newsText"></span></div>
+
+<!-- شريط عروض -->
+<div class="ticker" onclick="showOffers()" style="background:#ff9800;cursor:pointer">
+<span>🔥 عروض مميزة - اضغط هنا</span>
+</div>
+
+<!-- الشرائح -->
+<div class="tiers" id="tiers"></div>
+
+<input placeholder="🔍 بحث..." oninput="globalSearch(this.value)" style="width:90%;margin:10px;padding:10px">
 
 <div id="app"></div>
 
@@ -114,9 +116,8 @@ border-top:1px solid #ddd;
 </div>
 
 <script>
-let data=[],cart={};
+let data=[],cart={},tier=null,locationLink="";
 
-// تحميل
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(res=>res.json())
 .then(res=>{
@@ -130,8 +131,48 @@ if(img) document.getElementById("companyImage").src=img;
 let news=data.find(p=>p.news)?.news;
 if(news) document.getElementById("newsText").innerText=news;
 
+// الشرائح
+let tiers = data.filter(p=>p.tier_name);
+let tierDiv=document.getElementById("tiers");
+
+tiers.forEach(t=>{
+let btn=document.createElement("button");
+btn.innerText=t.tier_name;
+btn.onclick=()=>selectTier(t);
+tierDiv.appendChild(btn);
+});
+
 showBrands();
 });
+
+// اختيار شريحة
+function selectTier(t){
+tier = t;
+localStorage.setItem("tier",JSON.stringify(t));
+updateTierBanner();
+}
+
+// عرض تنبيه
+function updateTierBanner(){
+let banner=document.getElementById("tierBanner");
+
+if(tier){
+banner.style.display="block";
+banner.innerText=`أنت على ${tier.tier_name} - الحد الأدنى ${tier.tier_min}`;
+}else{
+banner.style.display="none";
+}
+}
+
+// عروض
+function showOffers(){
+if(tier){
+alert("غير متاح مع الشريحة");
+return;
+}
+let offers=data.filter(p=>p.company==="عروض");
+renderProducts(offers,true);
+}
 
 // الرئيسية
 function showBrands(){
@@ -144,15 +185,15 @@ let grid=document.createElement("div");
 grid.className="grid";
 
 brands.forEach(b=>{
+if(b==="عروض" && tier) return;
+
 let logo=data.find(p=>p.company===b)?.brand_image;
 
 let card=document.createElement("div");
 card.className="card brand";
 
 card.innerHTML=`
-<div class="brand-logo">
-<img src="${logo}">
-</div>
+<div class="brand-logo"><img src="${logo}"></div>
 <div class="brand-name">${b}</div>
 `;
 
@@ -176,19 +217,18 @@ let list=data.filter(p=>p.company===company);
 renderProducts(list);
 }
 
-// بحث
+// بحث ذكي
 function globalSearch(q){
 q=q.toLowerCase();
 
-if(!q){
-showBrands();
-return;
-}
+if(!q){showBrands();return;}
+
+let results=data.filter(p=>{
+return p.name.toLowerCase().includes(q) ||
+(p.name.replace(/\s/g,'').includes(q));
+});
 
 const app=document.getElementById("app");
-
-let results=data.filter(p=>p.name.toLowerCase().includes(q));
-
 app.innerHTML=`
 <div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
 <h3 style="text-align:center">نتائج البحث</h3>
@@ -197,15 +237,30 @@ app.innerHTML=`
 renderProducts(results);
 }
 
-// عرض منتجات
-function renderProducts(list){
+// عرض المنتجات
+function renderProducts(list,fromOffers=false){
 const app=document.getElementById("app");
 
 let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
+
+let status=(p.status||"").trim();
+let isAvailable=status!=="0";
+
 let carton=parseFloat(p.price_carton);
+let unit=parseFloat(p.price_unit);
+let piece=parseFloat(p.price_piece);
+
+let options="";
+if(isAvailable){
+if(!isNaN(carton)) options+=`<option data-price="${carton}">كرتونة</option>`;
+if(!isNaN(unit)) options+=`<option data-price="${unit}">دستة</option>`;
+if(!isNaN(piece)) options+=`<option data-price="${piece}">قطعة</option>`;
+}
+
+let note=!isAvailable?"<div style='color:red'>نفذت الكمية ستصل قريبا</div>":"";
 
 let card=document.createElement("div");
 card.className="card";
@@ -214,27 +269,30 @@ card.innerHTML=`
 <img src="${p.image}">
 <h4>${p.name}</h4>
 <div>سعر الكرتونة: ${carton||"-"}</div>
+${note}
 
 <select onchange="setUnit('${p.name}',this)">
-<option disabled selected>اختر الوحدة</option>
-<option data-price="${carton}">كرتونة</option>
+<option disabled selected>📦 اختر الوحدة</option>
+${options}
 </select>
 
-<input type="number" placeholder="الكمية"
+<input type="number" placeholder="🔢 الكمية"
 onchange="setQty('${p.name}',this.value)">
 `;
 
 grid.appendChild(card);
 });
 
+app.innerHTML="";
 app.appendChild(grid);
 }
 
-// سلة
+// السلة
 function setUnit(name,el){
 let price=el.options[el.selectedIndex].getAttribute("data-price");
 if(!cart[name]) cart[name]={};
 cart[name].price=parseFloat(price);
+cart[name].unit=el.value;
 updateTotal();
 }
 
@@ -262,14 +320,114 @@ document.getElementById("total").innerText=total+" جنيه";
 function goReview(){
 const app=document.getElementById("app");
 
-app.innerHTML=`
+let total=0;
+
+let html=`
 <div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
 <h3>مراجعة الطلب</h3>
 `;
 
 for(let i in cart){
-app.innerHTML+=`<p>${i} × ${cart[i].qty}</p>`;
+let p=cart[i];
+total+=p.price*p.qty;
+
+html+=`
+<div>
+<h4>${i}</h4>
+<button onclick="changeQty('${i}',1)">+</button>
+<button onclick="changeQty('${i}',-1)">-</button>
+<button onclick="removeItem('${i}')">حذف</button>
+<p>${p.qty}</p>
+</div>
+`;
 }
+
+// خصم
+let finalTotal=total;
+let discountText="";
+
+if(tier){
+let min=parseFloat(tier.tier_min);
+let disc=parseFloat(tier.tier_discount);
+
+if(total>=min){
+let discount=total*(disc/100);
+finalTotal=total-discount;
+discountText=`خصم ${disc}% = ${discount.toFixed(0)}`;
+}else{
+discountText="لم تحقق الشريحة";
+}
+}
+
+html+=`
+<h3>الإجمالي: ${total}</h3>
+<h3>${discountText}</h3>
+<h3>بعد الخصم: ${finalTotal}</h3>
+
+<input id="customerName" placeholder="اسم العميل">
+<input id="phone" placeholder="رقم الموبايل">
+<textarea id="address" placeholder="العنوان"></textarea>
+
+<button onclick="getLocation()">📍 تحديد الموقع</button>
+<p id="locationStatus"></p>
+
+<button onclick="sendOrder(${finalTotal})">إرسال</button>
+`;
+
+app.innerHTML=html;
+}
+
+// تعديل
+function changeQty(name,c){
+if(cart[name]){
+cart[name].qty+=c;
+if(cart[name].qty<=0) delete cart[name];
+}
+goReview();
+updateTotal();
+}
+
+function removeItem(name){
+delete cart[name];
+goReview();
+updateTotal();
+}
+
+// لوكيشن
+function getLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+locationLink=`https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
+document.getElementById("locationStatus").innerText="✔ تم تحديد الموقع";
+});
+}
+
+// إرسال
+function sendOrder(finalTotal){
+
+if(tier){
+if(finalTotal < tier.tier_min){
+alert("لم تحقق الحد الأدنى للشريحة");
+return;
+}
+}
+
+let msg="طلب:%0A";
+
+for(let i in cart){
+msg+=`${i} × ${cart[i].qty}%0A`;
+}
+
+msg+=`%0Aالإجمالي: ${finalTotal}`;
+
+if(tier){
+msg+=`%0Aالشريحة: ${tier.tier_name}`;
+}
+
+if(locationLink){
+msg+=`%0Aالموقع: ${locationLink}`;
+}
+
+window.open(`https://wa.me/201552670465?text=${msg}`);
 }
 </script>
 
