@@ -8,13 +8,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
-body {font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:130px}
+body {font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:120px}
 
 /* الهيدر */
-header {
-  background:linear-gradient(135deg,#0b3d91,#1565c0);
-  color:#fff;text-align:center
-}
+header {background:linear-gradient(135deg,#0b3d91,#1565c0);color:#fff;text-align:center}
 .banner {width:100%;height:150px;object-fit:cover}
 
 /* الشريط */
@@ -22,77 +19,71 @@ header {
 .ticker span {display:inline-block;padding:10px;animation:scrollRTL 15s linear infinite}
 @keyframes scrollRTL {from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-/* تنبيه */
+/* الشريحة */
 .tier-banner {background:#ffeb3b;padding:8px;text-align:center;font-weight:bold}
 
 /* الأزرار */
 .tier-buttons {display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:10px}
 .tier-buttons button {background:#0b3d91;color:#fff;border:none;padding:8px 12px;border-radius:8px}
 .offer-btn {background:#e53935}
-.clear-tier {background:#333}
+.clear-tier {background:#000}
 
-/* رجوع */
-.back-inline {background:#e53935;color:#fff;padding:8px 14px;border-radius:8px;margin:10px;display:inline-block}
+/* الرجوع */
+.back-inline {display:inline-block;background:#e53935;color:#fff;padding:8px 14px;border-radius:8px;margin:10px}
 
 /* الجريد */
-.grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:10px}
+.grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;padding:10px}
 
 /* الكروت */
 .card {background:#fff;padding:10px;border-radius:12px;text-align:center}
-.card img {width:100%;height:100px;object-fit:contain}
+.card img {width:100%;height:110px;object-fit:contain}
 
-/* سعر */
-.price {color:#0b3d91;font-weight:bold}
+/* البراند */
+.brand-logo img {width:80%;height:80%}
 
-/* اختيار */
+/* اختيار الوحدة */
 select {
-  width:100%;
-  background:#e3f2fd;
-  border:2px solid #0b3d91;
-  padding:8px;
-  font-weight:bold;
-  border-radius:6px;
+width:100%;
+padding:8px;
+border-radius:8px;
+border:2px solid #0b3d91;
+background:#e3f2fd;
+font-weight:bold;
 }
 
-input[type=number]{
-  width:100%;
-  background:#fff3e0;
-  border:2px solid #ff9800;
-  padding:8px;
-  border-radius:6px;
-  font-weight:bold;
+/* الكمية */
+input[type=number] {
+width:100%;
+padding:8px;
+border-radius:8px;
+border:2px solid #ff9800;
+background:#fff3e0;
+font-weight:bold;
+}
+
+/* أسفل */
+.bottom-bar {
+position:fixed;
+bottom:0;
+width:100%;
+background:#fff;
+padding:10px;
+display:flex;
+justify-content:space-between;
+border-top:1px solid #ddd;
 }
 
 /* مراجعة */
 .review-card {
-  background:#fff;
-  margin:10px;
-  padding:10px;
-  border-radius:10px;
+background:#fff;
+padding:10px;
+margin:10px;
+border-radius:10px;
 }
-
-input,textarea {
-  width:95%;
-  padding:10px;
-  margin:5px;
-  border-radius:6px;
-  border:1px solid #ccc;
+.review-card button {
+margin:3px;
+padding:5px 10px;
 }
-
-/* خطأ */
-.error {border:2px solid red}
-
-/* أسفل */
-.bottom-bar {
-  position:fixed;
-  bottom:0;width:100%;
-  background:#fff;
-  padding:10px;
-  display:flex;
-  justify-content:space-between;
-  border-top:1px solid #ddd;
-}
-.footer {text-align:center;padding:10px;font-size:12px;color:#777}
 </style>
 </head>
 
@@ -104,6 +95,7 @@ input,textarea {
 </header>
 
 <div class="ticker"><span id="newsText"></span></div>
+
 <div id="tierBanner"></div>
 <div class="tier-buttons" id="tiers"></div>
 
@@ -111,199 +103,260 @@ input,textarea {
 
 <div id="app"></div>
 
+<div style="text-align:center;font-size:12px;margin-bottom:60px">
+تم التصميم بواسطة YaSsEr EL Joker
+</div>
+
 <div class="bottom-bar">
 <div id="total">0 جنيه</div>
 <button onclick="goReview()">مراجعة الطلب</button>
 </div>
 
-<div class="footer">تم التصميم بواسطة YaSsEr EL Joker</div>
-
 <script>
 let data=[],cart={},tier=null,locationLink="";
 
-/* تحميل */
+// تحميل
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(r=>r.json())
 .then(res=>{
 data=res;
 
-let img=data.find(p=>p.company_image)?.company_image;
-if(img) document.getElementById("companyImage").src=img;
-
-let news=data.find(p=>p.news)?.news;
-if(news) document.getElementById("newsText").innerText=news;
-
-/* استرجاع */
+// استرجاع السلة
 cart=JSON.parse(localStorage.getItem("cart")||"{}");
+
+// استرجاع الشريحة
 tier=JSON.parse(localStorage.getItem("tier")||"null");
 
 updateTotal();
 updateTierBanner();
+
+// صورة الشركة
+let img=data.find(p=>p.company_image)?.company_image;
+if(img) document.getElementById("companyImage").src=img;
+
+// الشريط
+let news=data.find(p=>p.news)?.news;
+if(news) document.getElementById("newsText").innerText=news;
+
 loadTiers();
 showBrands();
 });
 
-/* حفظ */
-function saveAll(){
+// حفظ
+function save(){
 localStorage.setItem("cart",JSON.stringify(cart));
-localStorage.setItem("tier",JSON.stringify(tier));
 }
 
-/* الشرائح */
+// الشرائح
 function loadTiers(){
-let container=document.getElementById("tiers");
-container.innerHTML="";
+let tiers=data.filter(p=>p.tier_name);
+let c=document.getElementById("tiers");
+c.innerHTML="";
 
-data.filter(p=>p.tier_name).forEach(t=>{
+tiers.forEach(t=>{
 let b=document.createElement("button");
 b.innerText=t.tier_name;
 b.onclick=()=>selectTier(t);
-container.appendChild(b);
+c.appendChild(b);
 });
 
 let offer=document.createElement("button");
-offer.className="offer-btn";
 offer.innerText="صفقة اليوم";
+offer.className="offer-btn";
 offer.onclick=openOffers;
-container.appendChild(offer);
+c.appendChild(offer);
 
 let clear=document.createElement("button");
-clear.className="clear-tier";
 clear.innerText="إلغاء الشريحة";
+clear.className="clear-tier";
 clear.onclick=clearTier;
-container.appendChild(clear);
+c.appendChild(clear);
 }
 
 function selectTier(t){
 tier=t;
-for(let i in cart){if(cart[i].isOffer) delete cart[i];}
-saveAll();
+localStorage.setItem("tier",JSON.stringify(t));
+
+// حذف العروض من السلة
+for(let i in cart){
+if(cart[i].company=="عروض") delete cart[i];
+}
+save();
+
 updateTierBanner();
 }
 
 function clearTier(){
 tier=null;
-saveAll();
+localStorage.removeItem("tier");
 updateTierBanner();
 }
 
+// تنبيه
 function updateTierBanner(){
 let el=document.getElementById("tierBanner");
-if(tier) el.innerHTML=`أنت على ${tier.tier_name} - الحد الأدنى ${tier.tier_min}`;
-else el.innerHTML="";
+if(tier){
+el.innerHTML=`أنت على ${tier.tier_name} - الحد الأدنى ${tier.tier_min}`;
+el.className="tier-banner";
+}else el.innerHTML="";
 }
 
-/* براندات */
+// الرئيسية
 function showBrands(){
 let app=document.getElementById("app");
 app.innerHTML="";
+
 let brands=[...new Set(data.map(p=>p.company))];
 
 let grid=document.createElement("div");
 grid.className="grid";
 
 brands.forEach(b=>{
-let logo=data.find(p=>p.company===b)?.brand_image;
+let logo=data.find(p=>p.company==b)?.brand_image;
 
-let c=document.createElement("div");
-c.className="card";
-c.innerHTML=`<img src="${logo||''}"><h4>${b}</h4>`;
-c.onclick=()=>showProducts(b);
-grid.appendChild(c);
+let card=document.createElement("div");
+card.className="card";
+card.innerHTML=`
+<div class="brand-logo">
+<img src="${logo}">
+</div>
+<h4>${b}</h4>
+`;
+
+card.onclick=()=>showProducts(b);
+grid.appendChild(card);
 });
+
 app.appendChild(grid);
 }
 
-/* منتجات */
+// المنتجات
 function showProducts(company){
 let app=document.getElementById("app");
 app.innerHTML=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div><h3>${company}</h3>`;
-renderProducts(data.filter(p=>p.company===company));
+
+let list=data.filter(p=>p.company==company);
+renderProducts(list);
 }
 
-/* عروض */
+// العروض
 function openOffers(){
-if(tier){alert("ألغِ الشريحة أولاً");return;}
+if(tier){
+alert("لا يمكن الدخول للعروض أثناء اختيار شريحة");
+return;
+}
 showProducts("عروض");
 }
 
-/* بحث */
+// البحث
 function globalSearch(q){
+q=q.toLowerCase();
 if(!q){showBrands();return;}
-let res=data.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));
+
+let results=data.filter(p=>p.name.toLowerCase().includes(q));
 let app=document.getElementById("app");
 app.innerHTML=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div>`;
-renderProducts(res);
+renderProducts(results);
 }
 
-/* عرض */
+// عرض المنتجات
 function renderProducts(list){
 let app=document.getElementById("app");
+
 let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
+let carton=parseFloat(p.price_carton);
+let unit=parseFloat(p.price_unit);
+let piece=parseFloat(p.price_piece);
+
 let options="";
-if(p.price_carton) options+=`<option data-price="${p.price_carton}">كرتونة</option>`;
-if(p.price_unit) options+=`<option data-price="${p.price_unit}">دستة</option>`;
-if(p.price_piece) options+=`<option data-price="${p.price_piece}">قطعة</option>`;
+if(!isNaN(carton)) options+=`<option data-price="${carton}">كرتونة</option>`;
+if(!isNaN(unit)) options+=`<option data-price="${unit}">دستة</option>`;
+if(!isNaN(piece)) options+=`<option data-price="${piece}">قطعة</option>`;
 
-let status=(p.status=="0")?"نفذت الكمية ستصل قريبا":"";
+let status=(p.status||"")=="0"?"نفذت الكمية ستصل قريبا":"";
 
-let c=document.createElement("div");
-c.className="card";
-c.innerHTML=`
+let card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
 <img src="${p.image}">
 <h4>${p.name}</h4>
-<div class="price">سعر الكرتونة: ${p.price_carton||"-"}</div>
+<div>سعر الكرتونة: ${carton||"-"} جنيه</div>
 <div style="color:red">${status}</div>
 
-<select onchange="setUnit('${p.name}',this,'${p.code}','${p.company}')">
-<option disabled selected>اختر الوحدة</option>${options}</select>
+<select onchange="setUnit('${p.name}',this)">
+<option disabled selected>اختر الوحدة</option>
+${options}
+</select>
 
 <input type="number" placeholder="ادخل الكمية"
 onchange="setQty('${p.name}',this.value)">
 `;
-grid.appendChild(c);
+
+grid.appendChild(card);
 });
+
 app.appendChild(grid);
 }
 
-/* سلة */
-function setUnit(name,el,code,company){
+// السلة
+function setUnit(name,el){
 let price=el.options[el.selectedIndex].getAttribute("data-price");
-cart[name]={...cart[name],price:+price,unit:el.value,code:code,company:company,isOffer:(company=="عروض")};
-saveAll();updateTotal();
+if(!cart[name]) cart[name]={};
+cart[name].price=parseFloat(price);
+cart[name].unit=el.value;
+updateTotal();save();
 }
 
 function setQty(name,qty){
 qty=parseInt(qty);
-if(qty>0) cart[name]={...cart[name],qty};
-else delete cart[name];
-saveAll();updateTotal();
+if(qty>0){
+if(!cart[name]) cart[name]={};
+cart[name].qty=qty;
+}else delete cart[name];
+updateTotal();save();
 }
 
+// الإجمالي
 function updateTotal(){
-let t=0;
-for(let i in cart){let p=cart[i];if(p.price&&p.qty)t+=p.price*p.qty;}
-document.getElementById("total").innerText=t+" جنيه";
+let total=0;
+for(let i in cart){
+let p=cart[i];
+if(p.price&&p.qty) total+=p.price*p.qty;
+}
+document.getElementById("total").innerText=total+" جنيه";
 }
 
-/* مراجعة */
+// مراجعة
 function goReview(){
 let app=document.getElementById("app");
-let total=0,html=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div><h3>مراجعة الطلب</h3>`;
+
+let total=0;
+let html=`<div class="back-inline" onclick="showBrands()">⬅ رجوع</div><h3>مراجعة الطلب</h3>`;
 
 for(let i in cart){
-let p=cart[i];let sub=p.price*p.qty;total+=sub;
-html+=`<div class="review-card">
-${p.code?`[${p.code}] `:""}${i}<br>
-${p.qty} × ${p.unit} × ${p.price} = ${sub}
-</div>`;
+let p=cart[i];
+total+=p.price*p.qty;
+
+html+=`
+<div class="review-card">
+<h4>${i}</h4>
+<p>${p.qty} × ${p.unit}</p>
+
+<button onclick="changeQty('${i}',1)">+</button>
+<button onclick="changeQty('${i}',-1)">-</button>
+<button onclick="removeItem('${i}')">حذف</button>
+</div>
+`;
 }
 
 let discount=0;
-if(tier && total>=tier.tier_min) discount=total*(tier.tier_discount/100);
+if(tier && total>=tier.tier_min){
+discount=total*(tier.tier_discount/100);
+}
 let net=total-discount;
 
 html+=`
@@ -318,49 +371,79 @@ html+=`
 <button onclick="getLocation()">📍 تحديد الموقع</button>
 <p id="loc"></p>
 
-<button onclick="sendOrder(${net},${total},${discount})">إرسال الطلب</button>
+<button onclick="sendOrder(${net},${total},${discount})">إرسال</button>
 `;
 
 app.innerHTML=html;
+
+// استرجاع بيانات
+setTimeout(()=>{
+document.getElementById("name").value=localStorage.getItem("name")||"";
+document.getElementById("phone").value=localStorage.getItem("phone")||"";
+document.getElementById("address").value=localStorage.getItem("address")||"";
+},100);
 }
 
-/* لوكيشن */
+function changeQty(name,val){
+cart[name].qty+=val;
+if(cart[name].qty<=0) delete cart[name];
+save();goReview();updateTotal();
+}
+
+function removeItem(name){
+delete cart[name];
+save();goReview();updateTotal();
+}
+
+// الموقع
 function getLocation(){
-navigator.geolocation.getCurrentPosition(p=>{
-locationLink=`https://maps.google.com/?q=${p.coords.latitude},${p.coords.longitude}`;
+navigator.geolocation.getCurrentPosition(pos=>{
+locationLink=`https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
 document.getElementById("loc").innerText="تم تحديد الموقع";
 });
 }
 
-/* إرسال */
+// إرسال
 function sendOrder(net,total,discount){
-let n=document.getElementById("name");
-let p=document.getElementById("phone");
-let a=document.getElementById("address");
 
-[n,p,a].forEach(f=>f.classList.remove("error"));
+let name=document.getElementById("name").value;
+let phone=document.getElementById("phone").value;
+let address=document.getElementById("address").value;
 
-if(!n.value||!p.value||!a.value){
-[n,p,a].forEach(f=>{if(!f.value)f.classList.add("error")});
-alert("فضلا ادخل البيانات كامله");return;
+if(!name||!phone||!address){
+alert("فضلا ادخل البيانات كامله");
+return;
 }
 
+// حفظ بيانات
+localStorage.setItem("name",name);
+localStorage.setItem("phone",phone);
+localStorage.setItem("address",address);
+
+// شرط الشريحة
 if(tier && total<tier.tier_min){
-alert("لم تحقق شرط الشريحة");return;
+alert("لم تحقق شرط الشريحة");
+return;
 }
 
 let msg="طلب:%0A";
+
 for(let i in cart){
-let c=cart[i];
-msg+=`${c.code?`[${c.code}] `:""}${i} - ${c.qty} ${c.unit} - ${c.price} = ${c.price*c.qty}%0A`;
+let p=cart[i];
+msg+=`${i} × ${p.qty} (${p.unit}) = ${p.price*p.qty}%0A`;
 }
 
 msg+=`%0Aالإجمالي: ${total}`;
 msg+=`%0Aالخصم: ${discount}`;
 msg+=`%0Aالصافي: ${net}`;
 
-if(tier) msg+=`%0Aالشريحة: ${tier.tier_name}`;
-if(locationLink) msg+=`%0Aالموقع: ${locationLink}`;
+if(tier){
+msg+=`%0Aالشريحة: ${tier.tier_name}`;
+}
+
+if(locationLink){
+msg+=`%0Aالموقع: ${locationLink}`;
+}
 
 window.open(`https://wa.me/201552670465?text=${msg}`);
 }
