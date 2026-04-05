@@ -1,1 +1,417 @@
 
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأهرام للتجارة والتوزيع</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+body{font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:110px}
+
+/* الهيدر */
+header{background:linear-gradient(135deg,#0b3d91,#1565c0);color:#fff;text-align:center}
+.banner{width:100%;height:160px;object-fit:cover}
+
+/* تنبيه الشريحة */
+.tier-alert{
+background:#fff3cd;
+padding:10px;
+text-align:center;
+font-weight:bold;
+color:#856404;
+}
+
+/* الشريط */
+.ticker{background:#0b3d91;color:#fff;overflow:hidden;white-space:nowrap}
+.ticker span{display:inline-block;padding:10px;animation:scrollRTL 15s linear infinite}
+@keyframes scrollRTL{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* شريط العروض */
+.ticker2{background:#e53935;color:#fff;overflow:hidden;white-space:nowrap;cursor:pointer}
+
+/* زر الرجوع */
+.back-inline{display:inline-block;background:#000;color:#fff;padding:8px 14px;border-radius:8px;margin:10px}
+
+/* الشرائح */
+.tiers{display:flex;gap:10px;justify-content:center;padding:10px}
+.tiers button{background:#ff9800;font-weight:bold}
+
+/* البراند */
+.card.brand{background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.1)}
+.brand-logo{height:110px;display:flex;align-items:center;justify-content:center}
+.brand-logo img{width:80%;height:80%;object-fit:contain}
+.brand-name{background:#f5f7fa;padding:8px;font-weight:bold}
+
+/* المنتجات */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;padding:10px}
+.card{background:#fff;padding:10px;border-radius:10px;text-align:center}
+.card img{width:100%;height:100px;object-fit:contain}
+
+.price{color:#0b3d91;font-weight:bold}
+
+select{
+background:#e3f2fd;
+border:2px solid #2196f3;
+font-weight:bold;
+font-size:14px;
+}
+
+input{
+background:#fff8e1;
+border:2px solid #ff9800;
+font-weight:bold;
+font-size:14px;
+}
+
+button{background:#25d366;color:#fff;border:none;padding:10px;border-radius:8px}
+
+/* إجمالي */
+.bottom-bar{position:fixed;bottom:0;width:100%;background:#fff;padding:10px;display:flex;justify-content:space-between}
+</style>
+</head>
+
+<body>
+
+<header>
+<img id="companyImage" class="banner">
+<h2>الأهرام للتجارة والتوزيع</h2>
+</header>
+
+<div id="tierAlert"></div>
+
+<div class="ticker"><span id="newsText"></span></div>
+<div class="ticker2" onclick="showOffers()"><span>🔥 عروض مميزة 🔥</span></div>
+
+<div id="tiers"></div>
+
+<div id="app"></div>
+
+<div class="bottom-bar">
+<div id="total">0 جنيه</div>
+<button onclick="goReview()">مراجعة الطلب</button>
+</div>
+
+<script>
+let data=[],cart={},locationLink="",selectedTier=null;
+
+// تحميل
+fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
+.then(res=>res.json())
+.then(res=>{
+data=res;
+
+// صورة الشركة
+let img=data.find(p=>p.company_image)?.company_image;
+if(img) document.getElementById("companyImage").src=img;
+
+// الشريط
+let news=data.find(p=>p.news)?.news;
+if(news) document.getElementById("newsText").innerText=news;
+
+loadTier();
+showBrands();
+renderTiers();
+});
+
+// عرض الشرائح
+function renderTiers(){
+let container=document.getElementById("tiers");
+container.innerHTML="";
+let tiers=data.filter(p=>p.tier_name);
+
+let div=document.createElement("div");
+div.className="tiers";
+
+tiers.forEach(t=>{
+let btn=document.createElement("button");
+btn.innerText=t.tier_name;
+btn.onclick=()=>selectTier(t);
+div.appendChild(btn);
+});
+
+container.appendChild(div);
+}
+
+// اختيار شريحة
+function selectTier(t){
+selectedTier=t;
+localStorage.setItem("tier",JSON.stringify(t));
+updateTierAlert();
+}
+
+// تحميل الشريحة
+function loadTier(){
+let t=localStorage.getItem("tier");
+if(t) selectedTier=JSON.parse(t);
+updateTierAlert();
+}
+
+// تنبيه
+function updateTierAlert(){
+let el=document.getElementById("tierAlert");
+if(selectedTier){
+el.className="tier-alert";
+el.innerText=`أنت اخترت ${selectedTier.tier_name} - الحد الأدنى ${selectedTier.tier_min}`;
+}else{
+el.innerHTML="";
+}
+}
+
+// الرئيسية
+function showBrands(){
+const app=document.getElementById("app");
+app.innerHTML="";
+let brands=[...new Set(data.map(p=>p.company).filter(c=>c && c!="عروض"))];
+
+let grid=document.createElement("div");
+grid.className="grid";
+
+brands.forEach(b=>{
+let logo=data.find(p=>p.company===b)?.brand_image;
+let card=document.createElement("div");
+card.className="card brand";
+
+card.innerHTML=`
+<div class="brand-logo"><img src="${logo}"></div>
+<div class="brand-name">${b}</div>
+`;
+
+card.onclick=()=>showProducts(b);
+grid.appendChild(card);
+});
+
+app.appendChild(grid);
+}
+
+// العروض
+function showOffers(){
+if(selectedTier){
+alert("لا يمكن استخدام العروض مع الشريحة");
+return;
+}
+showProducts("عروض");
+}
+
+// المنتجات
+function showProducts(company){
+const app=document.getElementById("app");
+
+app.innerHTML=`
+<div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
+<h3 style="text-align:center">${company}</h3>
+`;
+
+let list=data.filter(p=>p.company===company);
+renderProducts(list);
+}
+
+// عرض المنتجات
+function renderProducts(list){
+const app=document.getElementById("app");
+let grid=document.createElement("div");
+grid.className="grid";
+
+list.forEach(p=>{
+let status=(p.status||"").trim();
+let isAvailable=status!=="0";
+
+let carton=parseFloat(p.price_carton);
+let unit=parseFloat(p.price_unit);
+let piece=parseFloat(p.price_piece);
+
+let options="";
+if(!isNaN(carton)) options+=`<option data-price="${carton}">كرتونة</option>`;
+if(!isNaN(unit)) options+=`<option data-price="${unit}">دستة</option>`;
+if(!isNaN(piece)) options+=`<option data-price="${piece}">قطعة</option>`;
+
+let note=!isAvailable?"<div style='color:red'>نفذت الكمية ستصل قريبا</div>":"";
+let disabled=!isAvailable?"disabled":"";
+
+let card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+<img src="${p.image}">
+<h4>${p.name}</h4>
+<div class="price">${carton||"-"} جنيه</div>
+${note}
+
+<select ${disabled} onchange="setUnit('${p.name}',this)">
+<option disabled selected>📦 اختر الوحدة</option>
+${options}
+</select>
+
+<input type="number" ${disabled} placeholder="🔢 ادخل الكمية"
+onchange="setQty('${p.name}',this.value)">
+`;
+
+grid.appendChild(card);
+});
+
+app.appendChild(grid);
+}
+
+// السلة
+function setUnit(name,el){
+let price=el.options[el.selectedIndex].getAttribute("data-price");
+if(!cart[name]) cart[name]={};
+cart[name].price=parseFloat(price);
+cart[name].unit=el.value;
+updateTotal();
+}
+
+function setQty(name,qty){
+qty=parseInt(qty);
+if(qty>0){
+if(!cart[name]) cart[name]={};
+cart[name].qty=qty;
+}else delete cart[name];
+
+updateTotal();
+}
+
+// إجمالي
+function updateTotal(){
+let total=0;
+for(let i in cart){
+let p=cart[i];
+if(p.price && p.qty) total+=p.price*p.qty;
+}
+document.getElementById("total").innerText=total+" جنيه";
+}
+
+// مراجعة
+function goReview(){
+const app=document.getElementById("app");
+
+let total=0;
+
+let html=`
+<div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
+<h3>مراجعة الطلب</h3>
+`;
+
+for(let item in cart){
+let p=cart[item];
+total+=p.price*p.qty;
+
+html+=`
+<div style="background:#fff;padding:10px;margin:10px;border-radius:10px">
+<h4>${item}</h4>
+<p>${p.unit}</p>
+<button onclick="changeQty('${item}',1)">+</button>
+<button onclick="changeQty('${item}',-1)">-</button>
+<button onclick="removeItem('${item}')">حذف</button>
+<p>الكمية: ${p.qty}</p>
+</div>
+`;
+}
+
+// الخصم
+let discount=0;
+if(selectedTier && total>=parseFloat(selectedTier.tier_min)){
+discount=(total*parseFloat(selectedTier.tier_discount))/100;
+}
+
+let finalTotal=total-discount;
+
+html+=`
+<h3>الإجمالي: ${total}</h3>
+<h3>الخصم: ${discount}</h3>
+<h3>الصافي: ${finalTotal}</h3>
+
+<input id="customerName" placeholder="اسم العميل">
+<input id="phone" placeholder="رقم الموبايل">
+<input id="businessName" placeholder="اسم النشاط">
+<textarea id="address" placeholder="العنوان"></textarea>
+
+<button onclick="getLocation()">📍 تحديد الموقع</button>
+<p id="locationStatus"></p>
+
+<button onclick="sendOrder(${total},${discount},${finalTotal})">إرسال الطلب</button>
+`;
+
+app.innerHTML=html;
+}
+
+// تعديل
+function changeQty(name,change){
+if(cart[name]){
+cart[name].qty+=change;
+if(cart[name].qty<=0) delete cart[name];
+}
+goReview();
+updateTotal();
+}
+
+function removeItem(name){
+delete cart[name];
+goReview();
+updateTotal();
+}
+
+// الموقع
+function getLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+let lat=pos.coords.latitude;
+let lng=pos.coords.longitude;
+locationLink=`https://maps.google.com/?q=${lat},${lng}`;
+document.getElementById("locationStatus").innerText="✔ تم تحديد الموقع";
+});
+}
+
+// إرسال
+function sendOrder(total,discount,finalTotal){
+
+let name=document.getElementById("customerName");
+let phone=document.getElementById("phone");
+let business=document.getElementById("businessName");
+let address=document.getElementById("address");
+
+if(!name.value || !phone.value || !business.value || !address.value){
+alert("فضلا ادخل البيانات كامله");
+[name,phone,business,address].forEach(f=>{
+if(!f.value) f.style.border="2px solid red";
+});
+return;
+}
+
+// شرط الشريحة
+if(selectedTier && total<parseFloat(selectedTier.tier_min)){
+alert("لم تصل لقيمة الشريحة");
+return;
+}
+
+let msg="طلب جديد:%0A%0A";
+
+msg+=`👤 ${name.value}%0A📞 ${phone.value}%0A🏪 ${business.value}%0A📍 ${address.value}%0A%0A`;
+
+msg+="📦 الطلب:%0A";
+
+for(let item in cart){
+let p=cart[item];
+let code=data.find(x=>x.name==item)?.code || "";
+msg+=`${code} - ${item} × ${p.qty} (${p.unit}) = ${p.price*p.qty}%0A`;
+}
+
+msg+=`%0A💰 الإجمالي: ${total}`;
+
+if(selectedTier){
+msg+=`%0A🎯 ${selectedTier.tier_name}`;
+msg+=`%0A💸 خصم: ${discount}`;
+msg+=`%0A🧾 الصافي: ${finalTotal}`;
+}
+
+if(locationLink){
+msg+=`%0A📍 الموقع:%0A${locationLink}`;
+}
+
+window.open(`https://wa.me/201552670465?text=${msg}`);
+}
+</script>
+
+</body>
+</html>
