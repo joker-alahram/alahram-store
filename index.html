@@ -10,7 +10,7 @@
 <style>
 body {font-family:'Cairo';margin:0;background:#eef2f7;padding-bottom:110px}
 
-/* الهيدر */
+/* هيدر */
 header {
 background:linear-gradient(135deg,#0b3d91,#1565c0);
 color:#fff;
@@ -18,13 +18,8 @@ text-align:center;
 }
 .banner {width:100%;height:160px;object-fit:cover}
 
-/* الشريط */
-.ticker {
-background:#0b3d91;
-color:#fff;
-overflow:hidden;
-white-space:nowrap;
-}
+/* شريط */
+.ticker {background:#0b3d91;color:#fff;overflow:hidden;white-space:nowrap}
 .ticker span {
 display:inline-block;
 padding:10px;
@@ -35,32 +30,28 @@ from{transform:translateX(-100%)}
 to{transform:translateX(100%)}
 }
 
-/* رجوع */
-.back-btn {
-position:fixed;
-top:10px;
-left:10px;
-background:#ff5722;
+/* زر الرجوع */
+.back-inline {
+display:inline-block;
+background:#e53935;
 color:#fff;
-padding:10px 12px;
-border-radius:50px;
-z-index:999;
+padding:8px 14px;
+border-radius:8px;
+margin:10px;
 font-size:14px;
+cursor:pointer;
 }
 
-/* البراند */
+/* براند */
 .card.brand {
 background:#fff;
 border-radius:20px;
 overflow:hidden;
 box-shadow:0 8px 20px rgba(0,0,0,0.1);
 cursor:pointer;
-transition:.3s;
 }
-.card.brand:hover {transform:translateY(-5px)}
-
 .brand-logo {
-height:100px;
+height:110px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -70,14 +61,13 @@ width:80%;
 height:80%;
 object-fit:contain;
 }
-
 .brand-name {
 background:#f5f7fa;
 padding:8px;
 font-weight:bold;
 }
 
-/* المنتجات */
+/* منتجات */
 .card {background:#fff;padding:10px;border-radius:10px;text-align:center}
 .card img {width:100%;height:100px;object-fit:contain}
 
@@ -88,7 +78,11 @@ gap:12px;
 padding:10px;
 }
 
-input,select {width:90%;margin:5px;padding:8px}
+input,select,textarea {
+width:90%;
+margin:5px;
+padding:8px;
+}
 
 .bottom-bar {
 position:fixed;
@@ -105,8 +99,6 @@ border-top:1px solid #ddd;
 
 <body>
 
-<button class="back-btn" onclick="goBack()">⬅</button>
-
 <header>
 <img id="companyImage" class="banner">
 <h2>الأهرام للتجارة والتوزيع</h2>
@@ -118,11 +110,11 @@ border-top:1px solid #ddd;
 
 <div class="bottom-bar">
 <div id="total">0 جنيه</div>
-<button onclick="goReview()">مراجعة</button>
+<button onclick="goReview()">مراجعة الطلب</button>
 </div>
 
 <script>
-let data=[],cart={},historyStack=[];
+let data=[],cart={};
 
 // تحميل
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
@@ -130,7 +122,7 @@ fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(res=>{
 data=res;
 
-// صورة الشركة من الشيت
+// صورة الشركة
 let img=data.find(p=>p.company_image)?.company_image;
 if(img) document.getElementById("companyImage").src=img;
 
@@ -141,19 +133,10 @@ if(news) document.getElementById("newsText").innerText=news;
 showBrands();
 });
 
-// رجوع
-function goBack(){
-if(historyStack.length>0){
-let last=historyStack.pop();
-last();
-}
-}
-
-// عرض البراندات
+// الرئيسية
 function showBrands(){
 const app=document.getElementById("app");
 app.innerHTML="";
-historyStack=[];
 
 let brands=[...new Set(data.map(p=>p.company))];
 
@@ -173,30 +156,48 @@ card.innerHTML=`
 <div class="brand-name">${b}</div>
 `;
 
-card.onclick=()=>{
-historyStack.push(showBrands);
-showProducts(b);
-};
-
+card.onclick=()=>showProducts(b);
 grid.appendChild(card);
 });
 
 app.appendChild(grid);
 }
 
-// المنتجات
+// منتجات
 function showProducts(company){
 const app=document.getElementById("app");
-app.innerHTML=`<h3 style="text-align:center">${company}</h3>`;
+
+app.innerHTML=`
+<div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
+<h3 style="text-align:center">${company}</h3>
+`;
 
 let list=data.filter(p=>p.company===company);
-
 renderProducts(list);
-
-historyStack.push(()=>showProducts(company));
 }
 
-// عرض المنتجات
+// بحث
+function globalSearch(q){
+q=q.toLowerCase();
+
+if(!q){
+showBrands();
+return;
+}
+
+const app=document.getElementById("app");
+
+let results=data.filter(p=>p.name.toLowerCase().includes(q));
+
+app.innerHTML=`
+<div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
+<h3 style="text-align:center">نتائج البحث</h3>
+`;
+
+renderProducts(results);
+}
+
+// عرض منتجات
 function renderProducts(list){
 const app=document.getElementById("app");
 
@@ -204,19 +205,7 @@ let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
-let status=(p.status||"").trim();
-let isAvailable=status!=="0";
-
 let carton=parseFloat(p.price_carton);
-let unit=parseFloat(p.price_unit);
-let piece=parseFloat(p.price_piece);
-
-let options="";
-if(isAvailable){
-if(!isNaN(carton)) options+=`<option data-price="${carton}">كرتونة</option>`;
-if(!isNaN(unit)) options+=`<option data-price="${unit}">دستة</option>`;
-if(!isNaN(piece)) options+=`<option data-price="${piece}">قطعة</option>`;
-}
 
 let card=document.createElement("div");
 card.className="card";
@@ -228,7 +217,7 @@ card.innerHTML=`
 
 <select onchange="setUnit('${p.name}',this)">
 <option disabled selected>اختر الوحدة</option>
-${options}
+<option data-price="${carton}">كرتونة</option>
 </select>
 
 <input type="number" placeholder="الكمية"
@@ -238,11 +227,10 @@ onchange="setQty('${p.name}',this.value)">
 grid.appendChild(card);
 });
 
-app.innerHTML="";
 app.appendChild(grid);
 }
 
-// السلة
+// سلة
 function setUnit(name,el){
 let price=el.options[el.selectedIndex].getAttribute("data-price");
 if(!cart[name]) cart[name]={};
@@ -260,7 +248,7 @@ cart[name].qty=qty;
 updateTotal();
 }
 
-// الإجمالي
+// إجمالي
 function updateTotal(){
 let total=0;
 for(let i in cart){
@@ -272,7 +260,16 @@ document.getElementById("total").innerText=total+" جنيه";
 
 // مراجعة
 function goReview(){
-alert("صفحة الطلب موجودة عندك بالفعل");
+const app=document.getElementById("app");
+
+app.innerHTML=`
+<div class="back-inline" onclick="showBrands()">⬅ اضغط للرجوع</div>
+<h3>مراجعة الطلب</h3>
+`;
+
+for(let i in cart){
+app.innerHTML+=`<p>${i} × ${cart[i].qty}</p>`;
+}
 }
 </script>
 
