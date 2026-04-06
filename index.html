@@ -9,205 +9,61 @@
 
 <style>
 *{box-sizing:border-box}
-body{font-family:'Cairo';margin:0;background:#F5F7FA}
+body{font-family:'Cairo';margin:0;background:#F5F7FA;color:#222}
 
-/* ===== HEADER ===== */
-.header{
-position:relative;
-height:180px;
-overflow:hidden;
-}
-.header img{
-width:100%;
-height:100%;
-object-fit:cover;
-}
-.overlay{
-position:absolute;
-top:0;left:0;right:0;bottom:0;
-background:rgba(0,0,0,0.35);
-}
-.title{
-position:absolute;
-top:15px;
-right:15px;
-color:#fff;
-font-size:18px;
-font-weight:bold;
-background:rgba(0,0,0,0.4);
-padding:6px 12px;
-border-radius:8px;
-}
+/* DARK MODE */
+.dark{background:#121212;color:#fff}
+.dark .card{background:#1E1E1E}
+.dark input,.dark select{background:#222;color:#fff;border:1px solid #555}
 
-/* ===== TICKER ===== */
-.ticker{
-background:#E53935;
-color:#fff;
-padding:8px;
-overflow:hidden;
-white-space:nowrap;
-}
-.ticker span{
-display:inline-block;
-animation:scroll 15s linear infinite;
-}
-@keyframes scroll{
-from{transform:translateX(-100%)}
-to{transform:translateX(100%)}
-}
+/* HEADER */
+.header{position:relative;height:180px}
+.header img{width:100%;height:100%;object-fit:cover}
+.overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4)}
+.title{position:absolute;top:15px;right:15px;color:#fff;background:rgba(0,0,0,0.5);padding:6px 12px;border-radius:8px}
 
-/* ===== TIER ===== */
-.tier-banner{
-background:#FFD600;
-text-align:center;
-padding:8px;
-font-weight:bold;
-}
+/* TICKER */
+.ticker{background:#E53935;color:#fff;padding:8px;overflow:hidden}
+.ticker span{display:inline-block;animation:scroll 15s linear infinite}
+@keyframes scroll{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-.tiers{
-display:flex;
-flex-wrap:wrap;
-gap:6px;
-padding:10px;
-}
-.tiers button{
-flex:1 1 30%;
-border:none;
-padding:8px;
-border-radius:20px;
-color:#fff;
-cursor:pointer;
-}
-.t1{background:#64B5F6}
-.t2{background:#42A5F5}
-.t3{background:#1E88E5}
-.t4{background:#1565C0}
-.t5{background:#0D47A1}
-.t6{background:#002171}
+/* TIER */
+.tier-banner{background:#FFD600;text-align:center;padding:8px;font-weight:bold}
 
-.offer-btn{
-background:#E53935!important;
-}
-.clear-btn{
-background:#000!important;
-}
+.tiers{display:flex;flex-wrap:wrap;gap:6px;padding:10px}
+.tiers button{flex:1 1 30%;border:none;padding:8px;border-radius:20px;color:#fff}
+.t1{background:#64B5F6}.t2{background:#42A5F5}.t3{background:#1E88E5}
+.t4{background:#1565C0}.t5{background:#0D47A1}.t6{background:#002171}
+.offer-btn{background:#E53935!important}
+.clear-btn{background:#000!important}
 
-/* ===== SEARCH ===== */
-.search{
-width:90%;
-margin:10px auto;
-display:block;
-padding:10px;
-border-radius:10px;
-border:1px solid #ccc;
-}
+/* SEARCH */
+.search{width:90%;margin:10px auto;display:block;padding:10px;border-radius:10px}
 
-/* ===== GRID ===== */
-.grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
-padding:10px;
-}
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
 
-/* ===== CARD ===== */
-.card{
-background:#fff;
-padding:10px;
-border-radius:12px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
-.card img{
-width:100%;
-height:100px;
-object-fit:contain;
-}
-.price-old{
-text-decoration:line-through;
-color:#999;
-font-size:13px;
-}
-.price-new{
-color:#E53935;
-font-weight:bold;
-}
+/* CARD */
+.card{background:#fff;padding:10px;border-radius:12px}
+.card img{width:100%;height:100px;object-fit:contain}
 
-select,input{
-width:100%;
-padding:6px;
-margin-top:5px;
-border-radius:8px;
-border:1px solid #ccc;
-}
+.price-old{text-decoration:line-through;color:#999}
+.price-new{color:#E53935;font-weight:bold}
 
-input{font-size:13px}
+select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px}
 
-/* ===== BACK ===== */
-.back{
-background:#E53935;
-color:#fff;
-padding:8px;
-margin:10px;
-border-radius:8px;
-text-align:center;
-}
+/* BACK */
+.back{background:#E53935;color:#fff;padding:8px;margin:10px;border-radius:8px;text-align:center}
 
-/* ===== BOTTOM ===== */
-.bottom{
-position:fixed;
-bottom:0;
-width:100%;
-background:#fff;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:10px;
-border-top:1px solid #ccc;
-}
+/* BOTTOM */
+.bottom{position:fixed;bottom:0;width:100%;background:#fff;display:flex;justify-content:space-between;padding:10px}
+.review-btn{background:#0B3D91;color:#fff;padding:10px;border:none;border-radius:20px}
+.dark-btn{background:#000;color:#fff;border-radius:50%;padding:8px}
 
-.review-btn{
-background:#0B3D91;
-color:#fff;
-padding:10px 15px;
-border:none;
-border-radius:20px;
-font-size:14px;
-}
-
-.dark-btn{
-background:#000;
-color:#fff;
-padding:8px;
-border-radius:50%;
-}
-
-/* ===== REVIEW ===== */
-.review-card{
-background:#fff;
-padding:10px;
-margin:10px;
-border-radius:10px;
-}
-
-.input{
-width:100%;
-padding:10px;
-margin:6px 0;
-border-radius:8px;
-border:1px solid #ccc;
-}
-
-.send-btn{
-background:#0B3D91;
-color:#fff;
-padding:12px;
-width:80%;
-margin:20px auto;
-display:block;
-border:none;
-border-radius:20px;
-font-size:16px;
-}
+/* REVIEW */
+.review-card{background:#fff;padding:10px;margin:10px;border-radius:10px}
+.input{width:100%;padding:10px;margin:5px 0;border-radius:8px}
+.send-btn{background:#0B3D91;color:#fff;padding:12px;width:80%;margin:20px auto;display:block;border:none;border-radius:20px}
 
 </style>
 </head>
@@ -221,7 +77,6 @@ font-size:16px;
 </div>
 
 <div class="ticker"><span id="news"></span></div>
-
 <div id="tierBanner"></div>
 <div class="tiers" id="tiers"></div>
 
@@ -235,35 +90,32 @@ font-size:16px;
 
 <div class="bottom">
 <button class="dark-btn" onclick="toggleDark()">🌙</button>
-<div id="total">0</div>
+<div id="total">0 جنيه</div>
 <button class="review-btn" onclick="review()">🧾 مراجعة</button>
 </div>
 
 <script>
-let data=[],cart={},tier=null,lastView="brands",searchText="";
+let data=[],cart={},tier=null,historyStack=[];
 
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(r=>r.json())
 .then(res=>{
 data=res;
-
 cart=JSON.parse(localStorage.getItem("cart")||"{}");
 tier=JSON.parse(localStorage.getItem("tier")||"null");
-
 updateTotal();
-loadUI();
+load();
 });
 
-/* ===== UI ===== */
-function loadUI(){
+/* LOAD */
+function load(){
 document.getElementById("img").src=data[0].company_image||"";
 document.getElementById("news").innerText=data[0].news||"";
-
 loadTiers();
 showBrands();
 }
 
-/* ===== TIERS ===== */
+/* TIERS */
 function loadTiers(){
 let t=data.filter(x=>x.tier_name && x.tier_active!="0");
 let c=document.getElementById("tiers");
@@ -291,7 +143,7 @@ c.appendChild(clear);
 }
 
 function selectTier(t){
-if(!tier) cart={}; // اول مرة فقط
+if(!tier) cart={}; // اول اختيار فقط
 tier=t;
 localStorage.setItem("tier",JSON.stringify(t));
 updateTierBanner();
@@ -308,15 +160,13 @@ renderCurrent();
 
 function updateTierBanner(){
 let el=document.getElementById("tierBanner");
-if(tier){
-el.innerHTML=`أنت على ${tier.tier_name} - خصم ${tier.tier_discount}%`;
-el.className="tier-banner";
-}else el.innerHTML="";
+if(tier) el.innerHTML=`أنت على ${tier.tier_name} - خصم ${tier.tier_discount}%`;
+else el.innerHTML="";
 }
 
-/* ===== BRANDS ===== */
+/* BRANDS */
 function showBrands(){
-lastView="brands";
+pushHistory(showBrands);
 let app=document.getElementById("app");
 app.innerHTML="";
 let brands=[...new Set(data.map(p=>p.company))]
@@ -336,59 +186,74 @@ grid.appendChild(c);
 app.appendChild(grid);
 }
 
-/* ===== PRODUCTS ===== */
+/* PRODUCTS */
 function showProducts(company){
-lastView={type:"brand",value:company};
+pushHistory(()=>showProducts(company));
+
+if(tier && company=="صفقه اليوم"){
+alert("غير متاح مع الشريحة");
+return showBrands();
+}
+
 let app=document.getElementById("app");
 app.innerHTML=`<div class="back" onclick="goBack()">⬅ اضغط للرجوع</div>`;
 renderProducts(data.filter(p=>p.company==company));
 }
 
-function openOffers(){
-if(tier)return alert("غير متاح مع الشريحة");
-showProducts("صفقه اليوم");
-}
-
-/* ===== SEARCH ===== */
+/* SEARCH */
 function search(q){
-searchText=q;
 if(!q)return showBrands();
+
+pushHistory(()=>search(q));
 
 let list=data.filter(p=>
 p.name.toLowerCase().includes(q.toLowerCase()) &&
 !(tier && p.company=="صفقه اليوم")
 );
 
-lastView={type:"search",value:q};
-
 let app=document.getElementById("app");
 app.innerHTML=`<div class="back" onclick="goBack()">⬅ رجوع</div>`;
 renderProducts(list);
 }
 
-/* ===== PRODUCTS RENDER ===== */
+/* RENDER */
 function renderProducts(list){
 let app=document.getElementById("app");
 let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
-let price=parseFloat(p.price_carton)||0;
-let discount=tier?price*(tier.tier_discount/100):0;
-let final=price-discount;
+let prices={
+carton:parseFloat(p.price_carton)||0,
+unit:parseFloat(p.price_unit)||0,
+piece:parseFloat(p.price_piece)||0
+};
 
 let card=document.createElement("div");
 card.className="card";
 
+let priceHTML="";
+if(tier){
+let disc=prices.carton*(tier.tier_discount/100);
+priceHTML=`<div class="price-old">${prices.carton}</div>
+<div class="price-new">${prices.carton-disc}</div>`;
+}else{
+priceHTML=`<div>${prices.carton}</div>`;
+}
+
+let options="";
+if(prices.carton) options+=`<option value="carton">كرتونة</option>`;
+if(prices.unit) options+=`<option value="unit">دستة</option>`;
+if(prices.piece) options+=`<option value="piece">قطعة</option>`;
+
 card.innerHTML=`
 <img src="${p.image}">
 <h4>${p.name}</h4>
-<div class="price-old">${price}</div>
-<div class="price-new">${final}</div>
+${priceHTML}
 
 <select onchange="setUnit('${p.name}',this)">
 <option disabled selected>اختر الوحدة</option>
-<option value="كرتونة">كرتونة</option>
+${options}
 </select>
 
 <input type="number" placeholder="ادخل الكمية" disabled
@@ -402,7 +267,7 @@ grid.appendChild(card);
 app.appendChild(grid);
 }
 
-/* ===== CART ===== */
+/* CART */
 function setUnit(name,el){
 if(!cart[name]) cart[name]={};
 cart[name].unit=el.value;
@@ -410,52 +275,63 @@ el.nextElementSibling.disabled=false;
 }
 
 function checkUnit(name){
-if(!cart[name] || !cart[name].unit){
-alert("فضلاً اختر وحدة الشراء أولاً");
-}
+if(!cart[name]||!cart[name].unit) alert("فضلاً اختر وحدة الشراء أولاً");
 }
 
 function setQty(name,qty){
-if(!cart[name] || !cart[name].unit)return;
+if(!cart[name]||!cart[name].unit)return;
 
-let price=parseFloat(data.find(p=>p.name==name).price_carton)||0;
-let discount=tier?price*(tier.tier_discount/100):0;
-let final=price-discount;
+let p=data.find(x=>x.name==name);
+let price=p["price_"+cart[name].unit]||0;
 
-cart[name]={...cart[name],qty,price:final};
+let final=tier?price-(price*(tier.tier_discount/100)):price;
 
-save();
-updateTotal();
+cart[name]={...cart[name],qty,price,final,code:p.code};
+save();updateTotal();
 }
 
 function save(){
 localStorage.setItem("cart",JSON.stringify(cart));
 }
 
-/* ===== TOTAL ===== */
 function updateTotal(){
 let t=0;
-for(let i in cart){
-t+=cart[i].price*cart[i].qty;
-}
+for(let i in cart) t+=cart[i].final*cart[i].qty;
 document.getElementById("total").innerText=t+" جنيه";
 }
 
-/* ===== REVIEW ===== */
+/* REVIEW */
 function review(){
-lastViewBeforeReview=lastView;
+pushHistory(review);
+
 let app=document.getElementById("app");
 let html=`<div class="back" onclick="goBack()">⬅ رجوع</div><h3>مراجعة الطلب</h3>`;
 
+let totalBefore=0,totalAfter=0;
+
 for(let i in cart){
 let p=cart[i];
+let before=p.price*p.qty;
+let after=p.final*p.qty;
+
+totalBefore+=before;
+totalAfter+=after;
+
 html+=`
 <div class="review-card">
-<h4>${i}</h4>
+<h4>[${p.code||""}] ${i}</h4>
+<p>${p.qty} × ${p.unit} × ${p.final} = ${after}</p>
 <button onclick="change('${i}',1)">+</button>
 <button onclick="change('${i}',-1)">-</button>
 <button onclick="del('${i}')">حذف</button>
 </div>`;
+}
+
+if(tier){
+html+=`<h3>قبل الخصم: ${totalBefore}</h3>
+<h3>بعد الخصم: ${totalAfter}</h3>`;
+}else{
+html+=`<h3>الإجمالي: ${totalAfter}</h3>`;
 }
 
 html+=`
@@ -464,13 +340,13 @@ html+=`
 <input class="input" id="activity" placeholder="النشاط">
 <textarea class="input" id="address" placeholder="العنوان"></textarea>
 
-<button class="send-btn" onclick="send()">إرسال</button>
+<button class="send-btn" onclick="send(${totalBefore},${totalAfter})">إرسال</button>
 `;
 
 app.innerHTML=html;
 }
 
-/* ===== EDIT ===== */
+/* EDIT */
 function change(name,v){
 cart[name].qty+=v;
 if(cart[name].qty<=0) delete cart[name];
@@ -481,34 +357,45 @@ delete cart[name];
 save();review();updateTotal();
 }
 
-/* ===== SEND ===== */
-function send(){
+/* SEND */
+function send(before,after){
 let name=document.getElementById("name").value;
 let phone=document.getElementById("phone").value;
-
 if(!name||!phone)return alert("ادخل البيانات");
 
 let msg="طلب:%0A";
 
+if(tier){
+msg+=`الشريحة: ${tier.tier_name}%0A`;
+}
+
 for(let i in cart){
 let p=cart[i];
-msg+=`${i} × ${p.qty} = ${p.price*p.qty}%0A`;
+msg+=`[${p.code||""}] ${i}%0A${p.qty} × ${p.unit} × ${p.final} = ${p.final*p.qty}%0A`;
 }
+
+msg+=`%0Aقبل الخصم: ${before}%0Aبعد الخصم: ${after}`;
 
 window.open("https://wa.me/201552670465?text="+msg);
 }
 
-/* ===== BACK ===== */
+/* BACK */
+function pushHistory(fn){historyStack.push(fn)}
 function goBack(){
-if(lastView.type=="brand") showProducts(lastView.value);
-else if(lastView.type=="search") search(lastView.value);
+historyStack.pop();
+let prev=historyStack.pop();
+if(prev) prev();
 else showBrands();
 }
 
-/* ===== DARK ===== */
+/* DARK */
 function toggleDark(){
 document.body.classList.toggle("dark");
+localStorage.setItem("dark",document.body.classList.contains("dark"));
 }
+
+if(localStorage.getItem("dark")=="true") document.body.classList.add("dark");
+
 </script>
 
 </body>
