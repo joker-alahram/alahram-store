@@ -11,7 +11,7 @@
 *{box-sizing:border-box}
 body{font-family:'Cairo';margin:0;background:#F5F7FA;color:#222}
 
-/* DARK MODE */
+/* DARK */
 .dark{background:#121212;color:#fff}
 .dark .card{background:#1E1E1E}
 .dark input,.dark select{background:#222;color:#fff;border:1px solid #555}
@@ -38,7 +38,7 @@ body{font-family:'Cairo';margin:0;background:#F5F7FA;color:#222}
 .clear-btn{background:#000!important}
 
 /* SEARCH */
-.search{width:90%;margin:10px auto;display:block;padding:10px;border-radius:10px}
+.search{width:90%;margin:10px auto;display:block;padding:10px;border-radius:10px;border:1px solid #ccc}
 
 /* GRID */
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
@@ -80,7 +80,6 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px}
 <div class="tiers" id="tiers"></div>
 
 <input class="search" placeholder="بحث..." oninput="search(this.value)">
-
 <div id="app"></div>
 
 <div style="text-align:center;font-size:12px;margin-bottom:80px">
@@ -96,15 +95,13 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px}
 <script>
 let data=[],products=[],settings={},cart={},tier=null,historyStack=[];
 
+/* LOAD */
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(r=>r.json())
 .then(res=>{
 data=res;
-
-/* 🔥 فصل المنتجات */
 products=data.filter(p=>p.name && p.company);
 
-/* 🔥 الإعدادات */
 settings={
 image:data.find(p=>p.company_image)?.company_image || "",
 news:data.find(p=>p.news)?.news || ""
@@ -114,11 +111,11 @@ cart=JSON.parse(localStorage.getItem("cart")||"{}");
 tier=JSON.parse(localStorage.getItem("tier")||"null");
 
 updateTotal();
-load();
+loadUI();
 });
 
-/* LOAD */
-function load(){
+/* UI */
+function loadUI(){
 document.getElementById("img").src=settings.image;
 document.getElementById("news").innerText=settings.news;
 loadTiers();
@@ -176,8 +173,6 @@ else el.innerHTML="";
 
 /* BRANDS */
 function showBrands(){
-pushHistory(showBrands);
-
 let app=document.getElementById("app");
 app.innerHTML="";
 
@@ -195,13 +190,12 @@ c.innerHTML=`<img src="${logo}"><h4>${b}</h4>`;
 c.onclick=()=>showProducts(b);
 grid.appendChild(c);
 });
-
 app.appendChild(grid);
 }
 
 /* PRODUCTS */
 function showProducts(company){
-pushHistory(()=>showProducts(company));
+historyStack.push(()=>showProducts(company));
 
 if(tier && company=="صفقه اليوم"){
 alert("غير متاح مع الشريحة");
@@ -209,8 +203,7 @@ return showBrands();
 }
 
 let app=document.getElementById("app");
-app.innerHTML=`<div class="back" onclick="goBack()">⬅ اضغط للرجوع</div>`;
-
+app.innerHTML=`<div class="back" onclick="goBack()">⬅ رجوع</div>`;
 renderProducts(products.filter(p=>p.company==company));
 }
 
@@ -218,150 +211,7 @@ renderProducts(products.filter(p=>p.company==company));
 function search(q){
 if(!q)return showBrands();
 
-pushHistory(()=>search(q));
-
-let list=products.filter(p=>
-p.name.toLowerCase().includes(q.toLowerCase()) &&
-!(tier && p.company=="صفقه اليوم")
-);
-
-let app=document.getElementById("app");
-app.innerHTML=`<div class="back" onclick="goBack()">⬅ رجوع</div>`;
-renderProducts(list);
-}
-<script>
-let data=[],products=[],settings={},cart={},tier=null,historyStack=[];
-
-/* ===== LOAD DATA ===== */
-fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
-.then(r=>r.json())
-.then(res=>{
-data=res;
-
-/* 🔥 فصل المنتجات */
-products=data.filter(p=>p.name && p.company);
-
-/* 🔥 الإعدادات */
-settings={
-image:data.find(p=>p.company_image)?.company_image || "",
-news:data.find(p=>p.news)?.news || ""
-};
-
-cart=JSON.parse(localStorage.getItem("cart")||"{}");
-tier=JSON.parse(localStorage.getItem("tier")||"null");
-
-updateTotal();
-loadUI();
-});
-
-/* ===== UI ===== */
-function loadUI(){
-document.getElementById("img").src=settings.image;
-document.getElementById("news").innerText=settings.news;
-loadTiers();
-showBrands();
-}
-
-/* ===== TIERS ===== */
-function loadTiers(){
-let t=data.filter(x=>x.tier_name && x.tier_active!="0");
-let c=document.getElementById("tiers");
-c.innerHTML="";
-
-t.forEach((e,i)=>{
-let b=document.createElement("button");
-b.className="t"+(i+1);
-b.innerText=e.tier_name;
-b.onclick=()=>selectTier(e);
-c.appendChild(b);
-});
-
-/* صفقة اليوم */
-let offer=document.createElement("button");
-offer.innerText="🔥 صفقة اليوم";
-offer.className="offer-btn";
-offer.onclick=openOffers;
-c.appendChild(offer);
-
-/* إلغاء */
-let clear=document.createElement("button");
-clear.innerText="إلغاء";
-clear.className="clear-btn";
-clear.onclick=clearTier;
-c.appendChild(clear);
-}
-
-function selectTier(t){
-if(!tier) cart={};
-tier=t;
-localStorage.setItem("tier",JSON.stringify(t));
-updateTierBanner();
-renderCurrent();
-}
-
-function clearTier(){
-tier=null;
-cart={};
-localStorage.removeItem("tier");
-updateTierBanner();
-renderCurrent();
-}
-
-function updateTierBanner(){
-let el=document.getElementById("tierBanner");
-if(tier){
-el.innerHTML=`أنت على ${tier.tier_name} - خصم ${tier.tier_discount}%`;
-el.className="tier-banner";
-}else el.innerHTML="";
-}
-
-/* ===== BRANDS ===== */
-function showBrands(){
-pushHistory(showBrands);
-
-let app=document.getElementById("app");
-app.innerHTML="";
-
-let brands=[...new Set(products.map(p=>p.company))]
-.filter(b=>!(tier && b=="صفقه اليوم"));
-
-let grid=document.createElement("div");
-grid.className="grid";
-
-brands.forEach(b=>{
-let logo=products.find(p=>p.company==b)?.brand_image;
-
-let c=document.createElement("div");
-c.className="card";
-c.innerHTML=`<img src="${logo}"><h4>${b}</h4>`;
-c.onclick=()=>showProducts(b);
-
-grid.appendChild(c);
-});
-
-app.appendChild(grid);
-}
-
-/* ===== PRODUCTS ===== */
-function showProducts(company){
-pushHistory(()=>showProducts(company));
-
-if(tier && company=="صفقه اليوم"){
-alert("غير متاح مع الشريحة");
-return showBrands();
-}
-
-let app=document.getElementById("app");
-app.innerHTML=`<div class="back" onclick="goBack()">⬅ اضغط للرجوع</div>`;
-
-renderProducts(products.filter(p=>p.company==company));
-}
-
-/* ===== SEARCH ===== */
-function search(q){
-if(!q)return showBrands();
-
-pushHistory(()=>search(q));
+historyStack.push(()=>search(q));
 
 let list=products.filter(p=>
 p.name.toLowerCase().includes(q.toLowerCase()) &&
@@ -373,34 +223,27 @@ app.innerHTML=`<div class="back" onclick="goBack()">⬅ رجوع</div>`;
 renderProducts(list);
 }
 
-/* ===== RENDER PRODUCTS ===== */
+/* RENDER */
 function renderProducts(list){
 let app=document.getElementById("app");
 let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
-
 let prices={
-carton:parseFloat(p.price_carton)||0,
-unit:parseFloat(p.price_unit)||0,
-piece:parseFloat(p.price_piece)||0
+carton:+p.price_carton||0,
+unit:+p.price_unit||0,
+piece:+p.price_piece||0
 };
 
 let card=document.createElement("div");
 card.className="card";
 
-/* السعر */
-let priceHTML="";
-if(tier){
-let disc=prices.carton*(tier.tier_discount/100);
-priceHTML=`<div class="price-old">${prices.carton}</div>
-<div class="price-new">${prices.carton-disc}</div>`;
-}else{
-priceHTML=`<div>${prices.carton}</div>`;
-}
+let priceHTML=tier?
+`<div class="price-old">${prices.carton}</div>
+<div class="price-new">${prices.carton-(prices.carton*(tier.tier_discount/100))}</div>`
+:`<div>${prices.carton}</div>`;
 
-/* الوحدات */
 let options="";
 if(prices.carton) options+=`<option value="carton">كرتونة</option>`;
 if(prices.unit) options+=`<option value="unit">دستة</option>`;
@@ -416,7 +259,7 @@ ${priceHTML}
 ${options}
 </select>
 
-<input type="number" placeholder="ادخل الكمية" disabled
+<input type="number" placeholder="الكمية" disabled
 onfocus="checkUnit('${p.name}')"
 oninput="setQty('${p.name}',this.value)">
 `;
@@ -427,7 +270,7 @@ grid.appendChild(card);
 app.appendChild(grid);
 }
 
-/* ===== CART ===== */
+/* CART */
 function setUnit(name,el){
 if(!cart[name]) cart[name]={};
 cart[name].unit=el.value;
@@ -435,140 +278,96 @@ el.nextElementSibling.disabled=false;
 }
 
 function checkUnit(name){
-if(!cart[name] || !cart[name].unit){
-alert("فضلاً اختر وحدة الشراء أولاً");
-}
+if(!cart[name]||!cart[name].unit) alert("اختر الوحدة أولاً");
 }
 
 function setQty(name,qty){
-if(!cart[name] || !cart[name].unit)return;
+if(!cart[name]||!cart[name].unit)return;
 
 let p=products.find(x=>x.name==name);
 let price=p["price_"+cart[name].unit]||0;
-
 let final=tier?price-(price*(tier.tier_discount/100)):price;
 
-cart[name]={...cart[name],qty,price,final,code:p.code};
+cart[name]={...cart[name],qty:+qty,price,final,code:p.code};
 
-save();
+localStorage.setItem("cart",JSON.stringify(cart));
 updateTotal();
 }
 
-function save(){
-localStorage.setItem("cart",JSON.stringify(cart));
-}
-
-/* ===== TOTAL ===== */
 function updateTotal(){
 let t=0;
-for(let i in cart){
-t+=cart[i].final*cart[i].qty;
-}
+for(let i in cart) t+=cart[i].final*cart[i].qty;
 document.getElementById("total").innerText=t+" جنيه";
 }
 
-/* ===== REVIEW ===== */
+/* REVIEW */
 function review(){
-pushHistory(review);
-
 let app=document.getElementById("app");
-
 let totalBefore=0,totalAfter=0;
 let html=`<div class="back" onclick="goBack()">⬅ رجوع</div><h3>مراجعة الطلب</h3>`;
 
 for(let i in cart){
 let p=cart[i];
-
 let before=p.price*p.qty;
 let after=p.final*p.qty;
-
 totalBefore+=before;
 totalAfter+=after;
 
-html+=`
-<div class="review-card">
+html+=`<div class="review-card">
 <h4>[${p.code||""}] ${i}</h4>
 <p>${p.qty} × ${p.unit} × ${p.final} = ${after}</p>
-
 <button onclick="change('${i}',1)">+</button>
 <button onclick="change('${i}',-1)">-</button>
 <button onclick="del('${i}')">حذف</button>
 </div>`;
 }
 
-/* الإجمالي */
-if(tier){
-html+=`<h3>قبل الخصم: ${totalBefore}</h3>
-<h3>بعد الخصم: ${totalAfter}</h3>`;
-}else{
-html+=`<h3>الإجمالي: ${totalAfter}</h3>`;
-}
+html+=tier?
+`<h3>قبل الخصم: ${totalBefore}</h3><h3>بعد الخصم: ${totalAfter}</h3>`:
+`<h3>الإجمالي: ${totalAfter}</h3>`;
 
 html+=`
 <input class="input" id="name" placeholder="الاسم">
-<input class="input" id="phone" placeholder="التليفون">
-<input class="input" id="activity" placeholder="النشاط">
+<input class="input" id="phone" placeholder="الموبايل">
 <textarea class="input" id="address" placeholder="العنوان"></textarea>
-
-<button class="send-btn" onclick="send(${totalBefore},${totalAfter})">إرسال</button>
-`;
+<button class="send-btn" onclick="send(${totalBefore},${totalAfter})">إرسال</button>`;
 
 app.innerHTML=html;
 }
 
-/* ===== EDIT ===== */
-function change(name,v){
-cart[name].qty+=v;
-if(cart[name].qty<=0) delete cart[name];
-save();review();updateTotal();
-}
+function change(n,v){cart[n].qty+=v;if(cart[n].qty<=0)delete cart[n];updateTotal();review()}
+function del(n){delete cart[n];updateTotal();review()}
 
-function del(name){
-delete cart[name];
-save();review();updateTotal();
-}
-
-/* ===== SEND ===== */
-function send(before,after){
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-
-if(!name||!phone)return alert("ادخل البيانات");
+/* SEND */
+function send(b,a){
+let n=document.getElementById("name").value;
+let p=document.getElementById("phone").value;
+if(!n||!p)return alert("ادخل البيانات");
 
 let msg="طلب:%0A";
-
-if(tier){
-msg+=`الشريحة: ${tier.tier_name}%0A`;
-}
+if(tier) msg+=`الشريحة: ${tier.tier_name}%0A`;
 
 for(let i in cart){
-let p=cart[i];
-msg+=`[${p.code||""}] ${i}%0A${p.qty} × ${p.unit} × ${p.final} = ${p.final*p.qty}%0A`;
+let x=cart[i];
+msg+=`[${x.code||""}] ${i}%0A${x.qty} × ${x.unit} × ${x.final} = ${x.final*x.qty}%0A`;
 }
 
-msg+=`%0Aقبل الخصم: ${before}%0Aبعد الخصم: ${after}`;
-
+msg+=`%0Aقبل: ${b}%0Aبعد: ${a}`;
 window.open("https://wa.me/201552670465?text="+msg);
 }
 
-/* ===== BACK ===== */
-function pushHistory(fn){historyStack.push(fn)}
+/* BACK */
 function goBack(){
-historyStack.pop();
 let prev=historyStack.pop();
-if(prev) prev();
-else showBrands();
+if(prev) prev(); else showBrands();
 }
 
-/* ===== DARK ===== */
+/* DARK */
 function toggleDark(){
 document.body.classList.toggle("dark");
 localStorage.setItem("dark",document.body.classList.contains("dark"));
 }
-
-if(localStorage.getItem("dark")=="true"){
-document.body.classList.add("dark");
-}
+if(localStorage.getItem("dark")=="true") document.body.classList.add("dark");
 </script>
 
 </body>
