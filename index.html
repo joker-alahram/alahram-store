@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>الأهرام للتجارة والتوزيع</title>
+<title>الأهرام</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
@@ -13,24 +13,18 @@ body{font-family:Cairo;margin:0;background:#f5f7fa}
 .header img{width:100%;height:100%;object-fit:cover}
 .overlay{position:absolute;inset:0;background:rgba(0,0,0,0.4)}
 .title{position:absolute;top:10px;right:10px;color:#fff}
-
-.ticker{background:#E53935;color:#fff;padding:10px;text-align:center;font-weight:bold}
-
-.search{width:90%;margin:10px auto;display:block;padding:10px;border-radius:10px;border:1px solid #ccc}
-
+.ticker{background:#E53935;color:#fff;padding:10px;text-align:center}
+.search{width:90%;margin:10px auto;display:block;padding:10px}
 .tiers{display:flex;flex-wrap:wrap;gap:5px;padding:10px}
-.tiers button{flex:1;border:none;padding:8px;border-radius:20px;background:#0B3D91;color:#fff}
-
+.tiers button{flex:1;padding:8px;border:none;border-radius:20px;background:#0B3D91;color:#fff}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
 .card{background:#fff;padding:10px;border-radius:12px}
-.card img{width:100%;height:100px;object-fit:contain}
-
-select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px;border:1px solid #ccc}
-
-.back{background:#E53935;color:#fff;padding:8px;margin:10px;text-align:center;border-radius:8px}
-
-.bottom{position:fixed;bottom:0;width:100%;background:#fff;display:flex;justify-content:space-between;padding:10px;border-top:1px solid #ddd}
+.bottom{position:fixed;bottom:0;width:100%;background:#fff;display:flex;justify-content:space-between;padding:10px}
 </style>
+
+<!-- مكتبة CSV -->
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
 </head>
 
 <body>
@@ -58,55 +52,28 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px;border:1px 
 let products=[],tiers=[],settings=[];
 let cart={},tier=null;
 
-/* ================= CSV PARSER (محترف) ================= */
-function parseCSV(text){
-const lines = text.trim().split("\n");
-const headers = lines[0].split(",");
-
-return lines.slice(1).map(line => {
-let values = [];
-let current = "";
-let insideQuotes = false;
-
-for (let char of line) {
-if (char === '"') insideQuotes = !insideQuotes;
-else if (char === "," && !insideQuotes){
-values.push(current);
-current="";
-}else{
-current+=char;
-}
-}
-values.push(current);
-
-let obj={};
-headers.forEach((h,i)=>{
-obj[h.trim()] = values[i] ? values[i].trim() : "";
+/* تحميل CSV احترافي */
+function loadCSV(url){
+return new Promise((resolve)=>{
+Papa.parse(url,{
+download:true,
+header:true,
+skipEmptyLines:true,
+complete:(res)=>resolve(res.data)
 });
-
-return obj;
 });
 }
 
-/* ================= LOAD ================= */
-
+/* تحميل البيانات */
 Promise.all([
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=0&single=true&output=csv").then(r=>r.text()),
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=1615674253&single=true&output=csv").then(r=>r.text()),
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=631334296&single=true&output=csv").then(r=>r.text())
-])
-.then(([p,t,s])=>{
+loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=0&output=csv"),
+loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=1615674253&output=csv"),
+loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=631334296&output=csv")
+]).then(([p,t,s])=>{
 
-products = parseCSV(p).filter(x=>x.status==="active");
-
-tiers = parseCSV(t)
-.filter(x=>x.tier_active==="1")
-.map(x=>({
-...x,
-tier_discount:+x.tier_discount
-}));
-
-settings = parseCSV(s);
+products = p.filter(x=>x.status==="active");
+tiers = t.filter(x=>x.tier_active==="1");
+settings = s;
 
 /* HEADER */
 let header = settings.find(x=>x.type==="company_image");
@@ -114,43 +81,27 @@ if(header) document.getElementById("img").src = header.value;
 
 /* NEWS */
 let newsList = settings.filter(x=>x.type==="news").map(x=>x.value);
-startSlider(newsList);
-
-/* UI */
-loadTiers();
-showBrands();
-
-}).catch(err=>{
-document.getElementById("news").innerText="خطأ في تحميل البيانات";
-console.error(err);
-});
-
-/* ================= SLIDER ================= */
-function startSlider(list){
-if(!list.length) return;
 let i=0;
 setInterval(()=>{
-document.getElementById("news").innerText=list[i];
-i=(i+1)%list.length;
+document.getElementById("news").innerText=newsList[i]||"";
+i=(i+1)%newsList.length;
 },3000);
-}
 
-/* ================= TIERS ================= */
-function loadTiers(){
+/* TIERS */
 let c=document.getElementById("tiers");
-c.innerHTML="";
 tiers.forEach(t=>{
 let b=document.createElement("button");
 b.innerText=t.tier_name;
-b.onclick=()=>{
-tier=t;
-showBrands();
-};
+b.onclick=()=>{tier=t;showBrands();};
 c.appendChild(b);
 });
-}
 
-/* ================= BRANDS ================= */
+/* START */
+showBrands();
+
+});
+
+/* BRANDS */
 function showBrands(){
 let app=document.getElementById("app");
 app.innerHTML="";
@@ -171,94 +122,12 @@ grid.appendChild(c);
 app.appendChild(grid);
 }
 
-/* ================= PRODUCTS ================= */
+/* PRODUCTS */
 function showProducts(company){
 let app=document.getElementById("app");
-app.innerHTML=`<div class="back" onclick="showBrands()">⬅ رجوع</div>`;
+app.innerHTML=`<div onclick="showBrands()">رجوع</div>`;
 
 let list=products.filter(p=>p.company==company);
-
-let grid=document.createElement("div");
-grid.className="grid";
-
-list.forEach(p=>{
-let card=document.createElement("div");
-card.className="card";
-
-card.innerHTML=`
-<img src="${p.image || ''}">
-<h4>${p.name}</h4>
-
-<select onchange="setUnit('${p.code}',this.value)">
-<option disabled selected>اختر الوحدة</option>
-${p.price_carton?'<option value="carton">كرتونة</option>':''}
-${p.price_dozen?'<option value="dozen">دستة</option>':''}
-${p.price_piece?'<option value="piece">قطعة</option>':''}
-</select>
-
-<input type="number" placeholder="الكمية" oninput="setQty('${p.code}',this.value)">
-`;
-
-grid.appendChild(card);
-});
-
-app.appendChild(grid);
-}
-
-/* ================= CART ================= */
-function setUnit(code,unit){
-if(!cart[code]) cart[code]={};
-cart[code].unit=unit;
-}
-
-function setQty(code,qty){
-if(!cart[code] || !cart[code].unit){
-alert("اختار الوحدة الأول");
-return;
-}
-
-let p=products.find(x=>x.code==code);
-let price = +p["price_"+cart[code].unit] || 0;
-
-if(tier){
-price -= price*(tier.tier_discount/100);
-}
-
-cart[code]={...cart[code],qty:+qty,price};
-
-updateTotal();
-}
-
-/* ================= TOTAL ================= */
-function updateTotal(){
-let t=0;
-for(let i in cart){
-t+=cart[i].price*cart[i].qty;
-}
-document.getElementById("total").innerText=t+" جنيه";
-}
-
-/* ================= REVIEW ================= */
-function review(){
-let msg="طلب:%0A";
-
-for(let i in cart){
-let x=cart[i];
-msg+=`${i} - ${x.qty} × ${x.price} = ${x.qty*x.price}%0A`;
-}
-
-window.open("https://wa.me/201552670465?text="+msg);
-}
-
-/* ================= SEARCH ================= */
-function search(q){
-if(!q) return showBrands();
-
-let app=document.getElementById("app");
-
-let list=products.filter(p=>
-(p.name||"").toLowerCase().includes(q.toLowerCase())
-);
 
 let grid=document.createElement("div");
 grid.className="grid";
@@ -270,8 +139,26 @@ c.innerHTML=`<h4>${p.name}</h4>`;
 grid.appendChild(c);
 });
 
-app.innerHTML="";
 app.appendChild(grid);
+}
+
+/* SEARCH */
+function search(q){
+if(!q) return showBrands();
+let list=products.filter(p=>p.name?.includes(q));
+let app=document.getElementById("app");
+app.innerHTML="";
+list.forEach(p=>{
+let c=document.createElement("div");
+c.className="card";
+c.innerHTML=`<h4>${p.name}</h4>`;
+app.appendChild(c);
+});
+}
+
+/* REVIEW */
+function review(){
+alert("تم");
 }
 
 </script>
