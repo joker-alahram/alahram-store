@@ -61,9 +61,9 @@ let cart={},tier=null;
 /* ================= LOAD DATA ================= */
 
 Promise.all([
-fetch("https://sheetdb.io/api/v1/nblnpi58q9ipb?sheet=Products").then(r=>r.json()),
-fetch("https://sheetdb.io/api/v1/nblnpi58q9ipb?sheet=Tiers").then(r=>r.json()),
-fetch("https://sheetdb.io/api/v1/nblnpi58q9ipb?sheet=Settings").then(r=>r.json())
+fetch("https://sheetdb.io/api/v1/tt4h0qxviq7f0?sheet=Products").then(r=>r.json()),
+fetch("https://sheetdb.io/api/v1/tt4h0qxviq7f0?sheet=Tiers").then(r=>r.json()),
+fetch("https://sheetdb.io/api/v1/tt4h0qxviq7f0?sheet=Settings").then(r=>r.json())
 ]).then(([p,t,s])=>{
 
 products = p.filter(x=>x.status=="active");
