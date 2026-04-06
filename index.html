@@ -64,7 +64,6 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px}
 .review-card{background:#fff;padding:10px;margin:10px;border-radius:10px}
 .input{width:100%;padding:10px;margin:5px 0;border-radius:8px}
 .send-btn{background:#0B3D91;color:#fff;padding:12px;width:80%;margin:20px auto;display:block;border:none;border-radius:20px}
-
 </style>
 </head>
 
@@ -95,22 +94,33 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px}
 </div>
 
 <script>
-let data=[],cart={},tier=null,historyStack=[];
+let data=[],products=[],settings={},cart={},tier=null,historyStack=[];
 
 fetch("https://sheetdb.io/api/v1/x342u61qs0xyu")
 .then(r=>r.json())
 .then(res=>{
 data=res;
+
+/* 🔥 فصل المنتجات */
+products=data.filter(p=>p.name && p.company);
+
+/* 🔥 الإعدادات */
+settings={
+image:data.find(p=>p.company_image)?.company_image || "",
+news:data.find(p=>p.news)?.news || ""
+};
+
 cart=JSON.parse(localStorage.getItem("cart")||"{}");
 tier=JSON.parse(localStorage.getItem("tier")||"null");
+
 updateTotal();
 load();
 });
 
 /* LOAD */
 function load(){
-document.getElementById("img").src=data[0].company_image||"";
-document.getElementById("news").innerText=data[0].news||"";
+document.getElementById("img").src=settings.image;
+document.getElementById("news").innerText=settings.news;
 loadTiers();
 showBrands();
 }
@@ -143,11 +153,11 @@ c.appendChild(clear);
 }
 
 function selectTier(t){
-if(!tier) cart={}; // اول اختيار فقط
+if(!tier) cart={};
 tier=t;
 localStorage.setItem("tier",JSON.stringify(t));
 updateTierBanner();
-renderCurrent();
+showBrands();
 }
 
 function clearTier(){
@@ -155,7 +165,7 @@ tier=null;
 cart={};
 localStorage.removeItem("tier");
 updateTierBanner();
-renderCurrent();
+showBrands();
 }
 
 function updateTierBanner(){
@@ -167,22 +177,25 @@ else el.innerHTML="";
 /* BRANDS */
 function showBrands(){
 pushHistory(showBrands);
+
 let app=document.getElementById("app");
 app.innerHTML="";
-let brands=[...new Set(data.map(p=>p.company))]
+
+let brands=[...new Set(products.map(p=>p.company))]
 .filter(b=>!(tier && b=="صفقه اليوم"));
 
 let grid=document.createElement("div");
 grid.className="grid";
 
 brands.forEach(b=>{
-let logo=data.find(p=>p.company==b)?.brand_image;
+let logo=products.find(p=>p.company==b)?.brand_image;
 let c=document.createElement("div");
 c.className="card";
 c.innerHTML=`<img src="${logo}"><h4>${b}</h4>`;
 c.onclick=()=>showProducts(b);
 grid.appendChild(c);
 });
+
 app.appendChild(grid);
 }
 
@@ -197,7 +210,8 @@ return showBrands();
 
 let app=document.getElementById("app");
 app.innerHTML=`<div class="back" onclick="goBack()">⬅ اضغط للرجوع</div>`;
-renderProducts(data.filter(p=>p.company==company));
+
+renderProducts(products.filter(p=>p.company==company));
 }
 
 /* SEARCH */
@@ -206,7 +220,7 @@ if(!q)return showBrands();
 
 pushHistory(()=>search(q));
 
-let list=data.filter(p=>
+let list=products.filter(p=>
 p.name.toLowerCase().includes(q.toLowerCase()) &&
 !(tier && p.company=="صفقه اليوم")
 );
@@ -215,187 +229,6 @@ let app=document.getElementById("app");
 app.innerHTML=`<div class="back" onclick="goBack()">⬅ رجوع</div>`;
 renderProducts(list);
 }
-
-/* RENDER */
-function renderProducts(list){
-let app=document.getElementById("app");
-let grid=document.createElement("div");
-grid.className="grid";
-
-list.forEach(p=>{
-let prices={
-carton:parseFloat(p.price_carton)||0,
-unit:parseFloat(p.price_unit)||0,
-piece:parseFloat(p.price_piece)||0
-};
-
-let card=document.createElement("div");
-card.className="card";
-
-let priceHTML="";
-if(tier){
-let disc=prices.carton*(tier.tier_discount/100);
-priceHTML=`<div class="price-old">${prices.carton}</div>
-<div class="price-new">${prices.carton-disc}</div>`;
-}else{
-priceHTML=`<div>${prices.carton}</div>`;
-}
-
-let options="";
-if(prices.carton) options+=`<option value="carton">كرتونة</option>`;
-if(prices.unit) options+=`<option value="unit">دستة</option>`;
-if(prices.piece) options+=`<option value="piece">قطعة</option>`;
-
-card.innerHTML=`
-<img src="${p.image}">
-<h4>${p.name}</h4>
-${priceHTML}
-
-<select onchange="setUnit('${p.name}',this)">
-<option disabled selected>اختر الوحدة</option>
-${options}
-</select>
-
-<input type="number" placeholder="ادخل الكمية" disabled
-onfocus="checkUnit('${p.name}')"
-oninput="setQty('${p.name}',this.value)">
-`;
-
-grid.appendChild(card);
-});
-
-app.appendChild(grid);
-}
-
-/* CART */
-function setUnit(name,el){
-if(!cart[name]) cart[name]={};
-cart[name].unit=el.value;
-el.nextElementSibling.disabled=false;
-}
-
-function checkUnit(name){
-if(!cart[name]||!cart[name].unit) alert("فضلاً اختر وحدة الشراء أولاً");
-}
-
-function setQty(name,qty){
-if(!cart[name]||!cart[name].unit)return;
-
-let p=data.find(x=>x.name==name);
-let price=p["price_"+cart[name].unit]||0;
-
-let final=tier?price-(price*(tier.tier_discount/100)):price;
-
-cart[name]={...cart[name],qty,price,final,code:p.code};
-save();updateTotal();
-}
-
-function save(){
-localStorage.setItem("cart",JSON.stringify(cart));
-}
-
-function updateTotal(){
-let t=0;
-for(let i in cart) t+=cart[i].final*cart[i].qty;
-document.getElementById("total").innerText=t+" جنيه";
-}
-
-/* REVIEW */
-function review(){
-pushHistory(review);
-
-let app=document.getElementById("app");
-let html=`<div class="back" onclick="goBack()">⬅ رجوع</div><h3>مراجعة الطلب</h3>`;
-
-let totalBefore=0,totalAfter=0;
-
-for(let i in cart){
-let p=cart[i];
-let before=p.price*p.qty;
-let after=p.final*p.qty;
-
-totalBefore+=before;
-totalAfter+=after;
-
-html+=`
-<div class="review-card">
-<h4>[${p.code||""}] ${i}</h4>
-<p>${p.qty} × ${p.unit} × ${p.final} = ${after}</p>
-<button onclick="change('${i}',1)">+</button>
-<button onclick="change('${i}',-1)">-</button>
-<button onclick="del('${i}')">حذف</button>
-</div>`;
-}
-
-if(tier){
-html+=`<h3>قبل الخصم: ${totalBefore}</h3>
-<h3>بعد الخصم: ${totalAfter}</h3>`;
-}else{
-html+=`<h3>الإجمالي: ${totalAfter}</h3>`;
-}
-
-html+=`
-<input class="input" id="name" placeholder="الاسم">
-<input class="input" id="phone" placeholder="التليفون">
-<input class="input" id="activity" placeholder="النشاط">
-<textarea class="input" id="address" placeholder="العنوان"></textarea>
-
-<button class="send-btn" onclick="send(${totalBefore},${totalAfter})">إرسال</button>
-`;
-
-app.innerHTML=html;
-}
-
-/* EDIT */
-function change(name,v){
-cart[name].qty+=v;
-if(cart[name].qty<=0) delete cart[name];
-save();review();updateTotal();
-}
-function del(name){
-delete cart[name];
-save();review();updateTotal();
-}
-
-/* SEND */
-function send(before,after){
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-if(!name||!phone)return alert("ادخل البيانات");
-
-let msg="طلب:%0A";
-
-if(tier){
-msg+=`الشريحة: ${tier.tier_name}%0A`;
-}
-
-for(let i in cart){
-let p=cart[i];
-msg+=`[${p.code||""}] ${i}%0A${p.qty} × ${p.unit} × ${p.final} = ${p.final*p.qty}%0A`;
-}
-
-msg+=`%0Aقبل الخصم: ${before}%0Aبعد الخصم: ${after}`;
-
-window.open("https://wa.me/201552670465?text="+msg);
-}
-
-/* BACK */
-function pushHistory(fn){historyStack.push(fn)}
-function goBack(){
-historyStack.pop();
-let prev=historyStack.pop();
-if(prev) prev();
-else showBrands();
-}
-
-/* DARK */
-function toggleDark(){
-document.body.classList.toggle("dark");
-localStorage.setItem("dark",document.body.classList.contains("dark"));
-}
-
-if(localStorage.getItem("dark")=="true") document.body.classList.add("dark");
-
 </script>
 
 </body>
