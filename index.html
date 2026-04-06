@@ -58,24 +58,35 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px;border:1px 
 let products=[],tiers=[],settings=[];
 let cart={},tier=null;
 
-/* ================= LOAD DATA ================= */
+/* CSV PARSER */
+function parseCSV(text){
+let rows = text.split("\n").map(r=>r.split(","));
+let headers = rows[0];
+return rows.slice(1).map(r=>{
+let obj={};
+headers.forEach((h,i)=>obj[h.trim()]=r[i]);
+return obj;
+});
+}
 
+/* LOAD */
 Promise.all([
-fetch("https://sheetdb.io/api/v1/tt4h0qxviq7f0?sheet=Products").then(r=>r.json()),
-fetch("https://sheetdb.io/api/v1/tt4h0qxviq7f0?sheet=Tiers").then(r=>r.json()),
-fetch("https://sheetdb.io/api/v1/tt4h0qxviq7f0?sheet=Settings").then(r=>r.json())
-]).then(([p,t,s])=>{
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=0&single=true&output=csv").then(r=>r.text()),
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=1615674253&single=true&output=csv").then(r=>r.text()),
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=631334296&single=true&output=csv").then(r=>r.text())
+])
+.then(([p,t,s])=>{
 
-products = p.filter(x=>x.status=="active");
+products = parseCSV(p).filter(x=>x.status=="active");
 
-tiers = t
+tiers = parseCSV(t)
   .filter(x=>x.tier_active=="1")
   .map(x=>({
     ...x,
     tier_discount:+x.tier_discount
   }));
 
-settings = s;
+settings = parseCSV(s);
 
 /* HEADER */
 let header = settings.find(x=>x.type=="company_image");
@@ -91,8 +102,7 @@ showBrands();
 
 });
 
-/* ================= NEWS SLIDER ================= */
-
+/* SLIDER */
 function startSlider(list){
 if(!list.length) return;
 let i=0;
@@ -102,8 +112,7 @@ i=(i+1)%list.length;
 },3000);
 }
 
-/* ================= TIERS ================= */
-
+/* TIERS */
 function loadTiers(){
 let c=document.getElementById("tiers");
 c.innerHTML="";
@@ -119,8 +128,7 @@ c.appendChild(b);
 });
 }
 
-/* ================= BRANDS ================= */
-
+/* BRANDS */
 function showBrands(){
 let app=document.getElementById("app");
 app.innerHTML="";
@@ -141,8 +149,7 @@ grid.appendChild(c);
 app.appendChild(grid);
 }
 
-/* ================= PRODUCTS ================= */
-
+/* PRODUCTS */
 function showProducts(company){
 let app=document.getElementById("app");
 
@@ -178,8 +185,7 @@ grid.appendChild(card);
 app.appendChild(grid);
 }
 
-/* ================= CART ================= */
-
+/* CART */
 function setUnit(code,unit){
 if(!cart[code]) cart[code]={};
 cart[code].unit=unit;
@@ -200,8 +206,7 @@ cart[code]={...cart[code],qty:+qty,price};
 updateTotal();
 }
 
-/* ================= TOTAL ================= */
-
+/* TOTAL */
 function updateTotal(){
 let t=0;
 for(let i in cart){
@@ -210,8 +215,7 @@ t+=cart[i].price*cart[i].qty;
 document.getElementById("total").innerText=t+" جنيه";
 }
 
-/* ================= REVIEW ================= */
-
+/* REVIEW */
 function review(){
 let msg="طلب:%0A";
 
@@ -225,8 +229,7 @@ msg+=`${i} - ${x.qty} × ${x.price} = ${x.qty*x.price}%0A`;
 window.open("https://wa.me/201552670465?text="+msg);
 }
 
-/* ================= SEARCH ================= */
-
+/* SEARCH */
 function search(q){
 if(!q) return showBrands();
 
