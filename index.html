@@ -22,7 +22,6 @@ body{font-family:Cairo;margin:0;background:#f5f7fa}
 .bottom{position:fixed;bottom:0;width:100%;background:#fff;display:flex;justify-content:space-between;padding:10px}
 </style>
 
-<!-- مكتبة CSV -->
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
 </head>
@@ -66,9 +65,9 @@ complete:(res)=>resolve(res.data)
 
 /* تحميل البيانات */
 Promise.all([
-loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=0&output=csv"),
-loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=1615674253&output=csv"),
-loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=631334296&output=csv")
+loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vTIBDH5bvuDjt6_VNA69Z5iSDfpnjtEQcyaRLSjxKhcoh6AEqYWBDu9rIrfwsYgZRDYcXtNcT4PeGcw/pub?gid=1311908073&output=csv"),
+loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vTIBDH5bvuDjt6_VNA69Z5iSDfpnjtEQcyaRLSjxKhcoh6AEqYWBDu9rIrfwsYgZRDYcXtNcT4PeGcw/pub?gid=1316070187&output=csv"),
+loadCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vTIBDH5bvuDjt6_VNA69Z5iSDfpnjtEQcyaRLSjxKhcoh6AEqYWBDu9rIrfwsYgZRDYcXtNcT4PeGcw/pub?gid=1273210397&output=csv")
 ]).then(([p,t,s])=>{
 
 products = p.filter(x=>x.status==="active");
@@ -125,7 +124,7 @@ app.appendChild(grid);
 /* PRODUCTS */
 function showProducts(company){
 let app=document.getElementById("app");
-app.innerHTML=`<div onclick="showBrands()">رجوع</div>`;
+app.innerHTML=`<div onclick="showBrands()">⬅ رجوع</div>`;
 
 let list=products.filter(p=>p.company==company);
 
@@ -158,7 +157,7 @@ app.appendChild(c);
 
 /* REVIEW */
 function review(){
-alert("تم");
+alert("تم الطلب");
 }
 
 </script>
