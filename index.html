@@ -41,7 +41,7 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px;border:1px 
 <div class="title">الأهرام للتجارة والتوزيع</div>
 </div>
 
-<div class="ticker" id="news">...</div>
+<div class="ticker" id="news">جاري التحميل...</div>
 
 <input class="search" placeholder="بحث..." oninput="search(this.value)">
 
@@ -58,18 +58,38 @@ select,input{width:100%;padding:6px;margin-top:5px;border-radius:8px;border:1px 
 let products=[],tiers=[],settings=[];
 let cart={},tier=null;
 
-/* CSV PARSER */
+/* ================= CSV PARSER (محترف) ================= */
 function parseCSV(text){
-let rows = text.split("\n").map(r=>r.split(","));
-let headers = rows[0];
-return rows.slice(1).map(r=>{
+const lines = text.trim().split("\n");
+const headers = lines[0].split(",");
+
+return lines.slice(1).map(line => {
+let values = [];
+let current = "";
+let insideQuotes = false;
+
+for (let char of line) {
+if (char === '"') insideQuotes = !insideQuotes;
+else if (char === "," && !insideQuotes){
+values.push(current);
+current="";
+}else{
+current+=char;
+}
+}
+values.push(current);
+
 let obj={};
-headers.forEach((h,i)=>obj[h.trim()]=r[i]);
+headers.forEach((h,i)=>{
+obj[h.trim()] = values[i] ? values[i].trim() : "";
+});
+
 return obj;
 });
 }
 
-/* LOAD */
+/* ================= LOAD ================= */
+
 Promise.all([
 fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=0&single=true&output=csv").then(r=>r.text()),
 fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0beeAwtXuGxO1nbEOhFZXKvKN61diIVTWoZyootnxFGV0JAIi2nD-_Bh/pub?gid=1615674253&single=true&output=csv").then(r=>r.text()),
@@ -77,32 +97,35 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSyNyOc4I4Qe7VqSXphMv1K0b
 ])
 .then(([p,t,s])=>{
 
-products = parseCSV(p).filter(x=>x.status=="active");
+products = parseCSV(p).filter(x=>x.status==="active");
 
 tiers = parseCSV(t)
-  .filter(x=>x.tier_active=="1")
-  .map(x=>({
-    ...x,
-    tier_discount:+x.tier_discount
-  }));
+.filter(x=>x.tier_active==="1")
+.map(x=>({
+...x,
+tier_discount:+x.tier_discount
+}));
 
 settings = parseCSV(s);
 
 /* HEADER */
-let header = settings.find(x=>x.type=="company_image");
+let header = settings.find(x=>x.type==="company_image");
 if(header) document.getElementById("img").src = header.value;
 
 /* NEWS */
-let newsList = settings.filter(x=>x.type=="news").map(x=>x.value);
+let newsList = settings.filter(x=>x.type==="news").map(x=>x.value);
 startSlider(newsList);
 
 /* UI */
 loadTiers();
 showBrands();
 
+}).catch(err=>{
+document.getElementById("news").innerText="خطأ في تحميل البيانات";
+console.error(err);
 });
 
-/* SLIDER */
+/* ================= SLIDER ================= */
 function startSlider(list){
 if(!list.length) return;
 let i=0;
@@ -112,7 +135,7 @@ i=(i+1)%list.length;
 },3000);
 }
 
-/* TIERS */
+/* ================= TIERS ================= */
 function loadTiers(){
 let c=document.getElementById("tiers");
 c.innerHTML="";
@@ -121,14 +144,13 @@ let b=document.createElement("button");
 b.innerText=t.tier_name;
 b.onclick=()=>{
 tier=t;
-localStorage.setItem("tier",JSON.stringify(t));
 showBrands();
 };
 c.appendChild(b);
 });
 }
 
-/* BRANDS */
+/* ================= BRANDS ================= */
 function showBrands(){
 let app=document.getElementById("app");
 app.innerHTML="";
@@ -149,10 +171,9 @@ grid.appendChild(c);
 app.appendChild(grid);
 }
 
-/* PRODUCTS */
+/* ================= PRODUCTS ================= */
 function showProducts(company){
 let app=document.getElementById("app");
-
 app.innerHTML=`<div class="back" onclick="showBrands()">⬅ رجوع</div>`;
 
 let list=products.filter(p=>p.company==company);
@@ -161,12 +182,11 @@ let grid=document.createElement("div");
 grid.className="grid";
 
 list.forEach(p=>{
-
 let card=document.createElement("div");
 card.className="card";
 
 card.innerHTML=`
-<img src="${p.image}">
+<img src="${p.image || ''}">
 <h4>${p.name}</h4>
 
 <select onchange="setUnit('${p.code}',this.value)">
@@ -185,20 +205,23 @@ grid.appendChild(card);
 app.appendChild(grid);
 }
 
-/* CART */
+/* ================= CART ================= */
 function setUnit(code,unit){
 if(!cart[code]) cart[code]={};
 cart[code].unit=unit;
 }
 
 function setQty(code,qty){
-if(!cart[code] || !cart[code].unit) return alert("اختار الوحدة الأول");
+if(!cart[code] || !cart[code].unit){
+alert("اختار الوحدة الأول");
+return;
+}
 
 let p=products.find(x=>x.code==code);
 let price = +p["price_"+cart[code].unit] || 0;
 
 if(tier){
-price = price - (price*(tier.tier_discount/100));
+price -= price*(tier.tier_discount/100);
 }
 
 cart[code]={...cart[code],qty:+qty,price};
@@ -206,7 +229,7 @@ cart[code]={...cart[code],qty:+qty,price};
 updateTotal();
 }
 
-/* TOTAL */
+/* ================= TOTAL ================= */
 function updateTotal(){
 let t=0;
 for(let i in cart){
@@ -215,11 +238,9 @@ t+=cart[i].price*cart[i].qty;
 document.getElementById("total").innerText=t+" جنيه";
 }
 
-/* REVIEW */
+/* ================= REVIEW ================= */
 function review(){
 let msg="طلب:%0A";
-
-if(tier) msg+=`الشريحة: ${tier.tier_name}%0A`;
 
 for(let i in cart){
 let x=cart[i];
@@ -229,14 +250,14 @@ msg+=`${i} - ${x.qty} × ${x.price} = ${x.qty*x.price}%0A`;
 window.open("https://wa.me/201552670465?text="+msg);
 }
 
-/* SEARCH */
+/* ================= SEARCH ================= */
 function search(q){
 if(!q) return showBrands();
 
 let app=document.getElementById("app");
 
 let list=products.filter(p=>
-p.name.toLowerCase().includes(q.toLowerCase())
+(p.name||"").toLowerCase().includes(q.toLowerCase())
 );
 
 let grid=document.createElement("div");
