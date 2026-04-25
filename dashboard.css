@@ -159,37 +159,45 @@ button{cursor:pointer}
 @media (max-width:768px){
 
   .hero{
-    padding:12px;
-    grid-template-columns:1fr;
-    gap:12px;
+    padding:12px !important;
+    grid-template-columns:1fr !important;
+    gap:12px !important;
   }
 
   .hero h2{
-    font-size:1.1rem;
-    line-height:1.4;
+    font-size:1.1rem !important;
   }
 
   .stats{
-    grid-template-columns:1fr 1fr;
-    gap:8px;
+    grid-template-columns:1fr 1fr !important;
   }
 
   .stat{
-    padding:10px;
-    min-height:70px;
-    border-radius:16px;
+    padding:10px !important;
+    min-height:70px !important;
+  }
+
+}
+@media (max-width:768px){
+
+  .stats{
+    grid-template-columns:1fr 1fr !important;
+    gap:8px !important;
+  }
+
+  .stat{
+    padding:10px !important;
+    min-height:70px !important;
+    border-radius:16px !important;
+    gap:6px !important;
   }
 
   .stat strong{
-    font-size:1rem;
+    font-size:1rem !important;
   }
 
   .stat span{
-    font-size:.7rem;
-  }
-
-  .card{
-    padding:10px;
+    font-size:.7rem !important;
   }
 
 }
