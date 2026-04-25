@@ -1075,3 +1075,10 @@ window.addEventListener('keydown', (event) => {
 });
 
 init();
+els.menuBtn.onclick = () => {
+  document.body.classList.toggle("sidebar-open");
+};
+
+els.backdrop.onclick = () => {
+  document.body.classList.remove("sidebar-open");
+};
