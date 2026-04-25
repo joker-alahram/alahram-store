@@ -94,3 +94,64 @@ button{cursor:pointer}
 @media (max-width:640px){
   .topbar,.head,.actions{flex-direction:column;align-items:stretch}.search{min-width:0;width:100%}.table{min-width:900px}.hero{padding:16px}.hero h2{font-size:1.25rem}.quick-card{min-width:150px}
 }
+/* 🔥 MOBILE FIX FINAL */
+@media (max-width:768px){
+
+  body{
+    overflow-x:hidden;
+  }
+
+  /* أهم سطر بيحل المشكلة */
+  .main{
+    margin-right:0 !important;
+    padding:12px;
+  }
+
+  /* Sidebar */
+  .sidebar{
+    transform:translateX(100%);
+    width:85%;
+    max-width:300px;
+  }
+
+  body.sidebar-open .sidebar{
+    transform:translateX(0);
+  }
+
+  /* Topbar */
+  .topbar{
+    flex-direction:column;
+    align-items:stretch;
+    gap:10px;
+  }
+
+  .top-right{
+    width:100%;
+    justify-content:space-between;
+  }
+
+  .search{
+    width:100%;
+  }
+
+  /* Hero */
+  .hero{
+    grid-template-columns:1fr;
+  }
+
+  /* Grid fix */
+  .grid2,
+  .grid3{
+    grid-template-columns:1fr !important;
+  }
+
+  /* Tables */
+  .table{
+    min-width:600px;
+  }
+
+  .table-wrap{
+    overflow-x:auto;
+  }
+
+}
