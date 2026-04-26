@@ -1151,7 +1151,66 @@ function initDates() {
 }
 
 function bindEvents() {
-  document.addEventListener('click', (event) => {
+  document.addEventListener('click', async (event) => {
+
+    /* ===============================
+       🔥 FIX CRITICAL — SAVE STATUS
+    =============================== */
+
+    const saveBtn = event.target.closest('#saveOrderStatus');
+
+    if (saveBtn) {
+
+      event.preventDefault();
+
+      const orderId = saveBtn.dataset.id;
+      const newStatus = document.getElementById('orderStatusSel')?.value;
+
+      console.log("TRY UPDATE:", orderId, newStatus);
+
+      if (!orderId || !newStatus) {
+        alert("بيانات ناقصة");
+        return;
+      }
+
+      try {
+
+        const res = await fetch(`${CONFIG.baseUrl}/orders?id=eq.${orderId}`, {
+          method: "PATCH",
+          headers: {
+            apikey: CONFIG.apiKey,
+            Authorization: `Bearer ${CONFIG.apiKey}`,
+            "Content-Type": "application/json",
+            Prefer: "return=representation"
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        const txt = await res.text();
+        console.log("RESPONSE:", txt);
+
+        if (!res.ok) {
+          alert("❌ فشل التحديث:\n" + txt);
+          return;
+        }
+
+        alert("✅ تم تحديث الحالة");
+
+        setSheet('detailsModal', false);
+        await loadData();
+
+      } catch (err) {
+        console.error(err);
+        alert("❌ خطأ في الاتصال");
+      }
+
+      return;
+    }
+
+    /* ===============================
+       باقي النظام (بدون تغيير)
+    =============================== */
+
     const close = event.target.closest('[data-close]')?.dataset.close;
     if (close) {
       setSheet(close, false);
@@ -1188,6 +1247,7 @@ function bindEvents() {
 
     const action = event.target.closest('[data-act]');
     if (!action) return;
+
     const act = action.dataset.act;
     const id = action.dataset.id;
     const index = Number(action.dataset.i);
@@ -1238,12 +1298,16 @@ function bindEvents() {
     }
 
     if (act === 'open-rep') {
-      const rep = state.records.salesReps.find((item) => item.id === id) || state.records.vRepsPerformance.find((item) => (item.id || item.name) === id) || { id, name: id, region: '' };
+      const rep = state.records.salesReps.find((item) => item.id === id) ||
+                  state.records.vRepsPerformance.find((item) => (item.id || item.name) === id) ||
+                  { id, name: id, region: '' };
+
       if (rep) renderRepDetails(rep);
       return;
     }
-  });
 
+  });
+}
   els.menuBtn.onclick = () => setSheet('menuSheet', !els.menuSheet || els.menuSheet.classList.contains('hidden'));
   els.menuFab.onclick = () => setSheet('menuSheet', true);
   els.notifBtn.onclick = () => toast('لا توجد تنبيهات جديدة');
