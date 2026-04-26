@@ -833,7 +833,7 @@ function openOrder(order) {
   const statusHtml = canAccessSection('orders')
     ? `
       <label class="field"><span>تغيير الحالة</span><select id="orderStatusSel">${STATUSES.map((status) => `<option value="${status}" ${status === (order.status || 'draft') ? 'selected' : ''}>${status}</option>`).join('')}</select></label>
-      <button id="saveOrderStatus" data-id="${order.id}" class="primary-btn full" type="button">حفظ الحالة</button>
+      <button id="saveOrderStatus" class="primary-btn full" type="button">حفظ الحالة</button>
     `
     : `<div class="row-item"><strong>صلاحية قراءة فقط</strong><span>هذا الدور لا يسمح بتغيير الحالة</span></div>`;
 
