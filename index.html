@@ -9,39 +9,11 @@
   <title>لوحة التحكم</title>
   <link rel="stylesheet" href="dashboard.css" />
 </head>
-<body>
+<body class="locked">
   <div class="app-shell" id="appShell">
-    <header class="topbar">
-      <div class="topbar__title">
-        <button id="menuBtn" class="icon-btn mobile-only" aria-label="القائمة">☰</button>
-        <div>
-          <p class="eyebrow">B2B Admin Panel</p>
-          <h1 id="pageTitle">الرئيسية</h1>
-          <p id="pageSub" class="subtle">مراقبة وإدارة كاملة للنظام</p>
-        </div>
-      </div>
-
-      <div class="topbar__tools">
-        <div class="searchbox">
-          <input id="globalSearch" type="search" placeholder="بحث سريع داخل البيانات" />
-          <button id="clearSearch" class="icon-btn clear-btn" aria-label="مسح البحث">×</button>
-        </div>
-        <button id="refreshBtn" class="ghost-btn">تحديث</button>
-        <button id="logoutBtn" class="ghost-btn">خروج</button>
-      </div>
-
-      <div class="topbar__meta">
-        <button id="notifBtn" class="icon-btn" aria-label="التنبيهات">🔔</button>
-        <div class="user-chip">
-          <span class="user-chip__role" id="roleBadge">-</span>
-          <strong id="userBadge">-</strong>
-        </div>
-      </div>
-    </header>
-
-    <main class="main">
-      <section class="hero card">
-        <div class="hero__copy">
+    <section id="banner" class="banner-section">
+  <section class="hero card">
+    <div class="hero__copy">
           <p class="eyebrow gold">واجهة تشغيلية موبايل أولًا</p>
           <h2>تحكم في الطلبات والمنتجات والعملاء والتقارير بسرعة من شاشة واحدة</h2>
           <p class="subtle">تصميم جديد بالكامل بنمط التطبيق، مع سحب أفقي، بطاقات ذكية، وقوائم سفلية سريعة مع الحفاظ على منطق Supabase كما هو.</p>
@@ -52,9 +24,36 @@
           <article class="mini-stat"><span>العملاء</span><strong id="statCustomers">0</strong></article>
           <article class="mini-stat"><span>المنتجات</span><strong id="statProducts">0</strong></article>
         </div>
-      </section>
+  </section>
+</section>
+    <header id="mainHeader" class="topbar">
+  <div class="topbar__title">
+    <button id="menuBtn" class="icon-btn mobile-only" aria-label="القائمة">☰</button>
+    <div>
+      <p class="eyebrow">B2B Admin Panel</p>
+      <h1 id="pageTitle">الرئيسية</h1>
+      <p id="pageSub" class="subtle">مراقبة وإدارة كاملة للنظام</p>
+    </div>
+  </div>
 
-      <section class="rail-section card">
+  <div class="topbar__meta">
+    <button id="notifBtn" class="icon-btn" aria-label="التنبيهات">🔔</button>
+    <div class="user-chip">
+      <span class="user-chip__role" id="roleBadge">-</span>
+      <strong id="userBadge">-</strong>
+    </div>
+  </div>
+</header>
+    <section id="searchBar" class="search-strip">
+  <div class="searchbox">
+    <input id="globalSearch" type="search" placeholder="بحث سريع داخل البيانات" />
+    <button id="clearSearch" class="icon-btn clear-btn" aria-label="مسح البحث">×</button>
+  </div>
+  <button id="refreshBtn" class="ghost-btn">تحديث</button>
+  <button id="logoutBtn" class="ghost-btn">خروج</button>
+</section>
+    <section id="pageContent" class="main">
+  <section class="rail-section card">
         <div class="section-head">
           <div>
             <h3>التنقل السريع</h3>
@@ -73,8 +72,7 @@
       </section>
 
       <nav class="dock card" aria-label="الاختصارات">
-        <button class="dock__item active" data-sec="home"><span>⌂</span><strong>الرئيسية</strong></button>
-        <button class="dock__item" data-sec="orders"><span>↳</span><strong>الطلبات</strong></button>
+<button class="dock__item" data-sec="orders"><span>↳</span><strong>الطلبات</strong></button>
         <button class="dock__item" data-sec="reports"><span>◌</span><strong>التقارير</strong></button>
         <button class="dock__item" data-sec="settings"><span>⚙</span><strong>الإعدادات</strong></button>
       </nav>
@@ -247,12 +245,10 @@
           </article>
         </div>
       </section>
-    </main>
-
-    <button id="menuFab" class="fab" aria-label="فتح القائمة">☰</button>
+</section>
   </div>
 
-  <div class="sheet-backdrop hidden" id="menuSheetBackdrop" data-close="menuSheet"></div>
+<div class="sheet-backdrop hidden" id="menuSheetBackdrop" data-close="menuSheet"></div>
   <aside class="sheet hidden" id="menuSheet" aria-label="القائمة السفلية">
     <div class="sheet__handle"></div>
     <div class="sheet__head">
@@ -273,8 +269,8 @@
     </div>
   </aside>
 
-  <div class="sheet-backdrop hidden" id="loginModalBackdrop"></div>
-  <section class="sheet sheet--login hidden" id="loginModal" aria-label="تسجيل الدخول">
+  <div class="sheet-backdrop" id="loginModalBackdrop"></div>
+  <section class="sheet sheet--login" id="loginModal" aria-label="تسجيل الدخول">
     <div class="sheet__handle"></div>
     <div class="sheet__head">
       <div>
@@ -341,6 +337,7 @@
     </form>
   </section>
 
+  <button id="menuFab" class="fab mobile-only" aria-label="القائمة">☰</button>
   <div id="toast" class="toast hidden"></div>
   <script src="dashboard.js"></script>
 </body>
